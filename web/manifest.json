@@ -1,6 +1,6 @@
 {
-    "name": "studytrack",
-    "short_name": "studytrack",
+    "name": "StudyNest",
+    "short_name": "StudyNest",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
