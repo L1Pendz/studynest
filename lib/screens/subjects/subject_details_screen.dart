@@ -21,7 +21,10 @@ class SubjectDetailsScreen extends StatelessWidget {
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 12),
-            const Text('Subject tasks and study materials will appear here.'),
+            Text(
+              subject.description,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
           ],
         ),
       ),

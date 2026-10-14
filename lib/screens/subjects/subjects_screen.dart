@@ -16,9 +16,22 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
   final _searchController = TextEditingController();
 
   final List<Subject> _subjects = [
-    Subject(id: '1', name: 'Database Systems'),
-    Subject(id: '2', name: 'Software Engineering'),
-    Subject(id: '3', name: 'Web Development'),
+    Subject(
+      id: '1',
+      name: 'Database Systems',
+      description: 'Study of database design, SQL, and data management.',
+    ),
+    Subject(
+      id: '2',
+      name: 'Software Engineering',
+      description: 'Study of software development processes and methodologies.',
+    ),
+    Subject(
+      id: '3',
+      name: 'Web Development',
+      description:
+          'Study of web application development using HTML, CSS, and JavaScript.',
+    ),
   ];
 
   String _searchQuery = '';
@@ -147,12 +160,15 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
   }
 
   Future<void> _showAddSubjectDialog() async {
-    final name = await showDialog<String>(
+    final result = await showDialog<Map<String, String>>(
       context: context,
       builder: (_) => const AddSubjectDialog(),
     );
 
-    if (!mounted || name == null) return;
+    if (!mounted || result == null) return;
+
+    final name = result['name']!;
+    final description = result['description'] ?? '';
 
     final alreadyExists = _subjects.any(
       (subject) => subject.name.toLowerCase() == name.toLowerCase(),
@@ -170,6 +186,9 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
         Subject(
           id: DateTime.now().microsecondsSinceEpoch.toString(),
           name: name,
+          description: description.isEmpty
+              ? 'No description provided.'
+              : description,
         ),
       );
     });
