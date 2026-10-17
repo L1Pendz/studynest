@@ -185,7 +185,15 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
     Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (_) => SubjectDetailsScreen(subject: subject, subjects: _subjects),
+        builder: (_) => SubjectDetailsScreen(
+          subject: subject,
+          subjects: _subjects,
+          onDelete: () {
+            setState(() {
+              _subjects.removeWhere((item) => item.id == subject.id);
+            });
+          },
+        ),
       ),
     );
   }

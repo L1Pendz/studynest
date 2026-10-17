@@ -6,11 +6,13 @@ import '../../widgets/subjects/edit_subject_dialog.dart';
 class SubjectDetailsScreen extends StatefulWidget {
   final Subject subject;
   final List<Subject> subjects;
+  final VoidCallback onDelete;
 
   const SubjectDetailsScreen({
     super.key,
     required this.subject,
     required this.subjects,
+    required this.onDelete,
   });
 
   @override
@@ -21,10 +23,8 @@ class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
   Future<void> _editSubject() async {
     final result = await showDialog<Map<String, String>>(
       context: context,
-      builder: (_) => EditSubjectDialog(
-        subject: widget.subject,
-        subjects: widget.subjects,
-      ),
+      builder: (_) =>
+          EditSubjectDialog(subject: widget.subject, subjects: widget.subjects),
     );
 
     if (!mounted || result == null) return;
@@ -33,6 +33,35 @@ class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
       widget.subject.name = result['name']!;
       widget.subject.description = result['description'] ?? '';
     });
+  }
+
+  Future<void> _deleteSubject() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Delete Subject?'),
+          content: Text(
+            'Are you sure you want to delete "${widget.subject.name}"?',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: const Text('Delete'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted || confirmed != true) return;
+
+    widget.onDelete();
+    Navigator.pop(context);
   }
 
   @override
@@ -45,6 +74,11 @@ class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
             tooltip: 'Edit subject',
             onPressed: _editSubject,
             icon: const Icon(Icons.edit),
+          ),
+          IconButton(
+            tooltip: 'Delete subject',
+            onPressed: _deleteSubject,
+            icon: const Icon(Icons.delete_outline),
           ),
         ],
       ),
