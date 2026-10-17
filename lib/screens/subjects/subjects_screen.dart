@@ -193,6 +193,17 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
               _subjects.removeWhere((item) => item.id == subject.id);
             });
           },
+          onUpdate: (updatedSubject) {
+            setState(() {
+              final index = _subjects.indexWhere(
+                (item) => item.id == updatedSubject.id,
+              );
+
+              if (index != -1) {
+                _subjects[index] = updatedSubject;
+              }
+            });
+          },
         ),
       ),
     );

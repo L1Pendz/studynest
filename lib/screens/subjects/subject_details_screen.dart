@@ -7,12 +7,14 @@ class SubjectDetailsScreen extends StatefulWidget {
   final Subject subject;
   final List<Subject> subjects;
   final VoidCallback onDelete;
+  final ValueChanged<Subject> onUpdate;
 
   const SubjectDetailsScreen({
     super.key,
     required this.subject,
     required this.subjects,
     required this.onDelete,
+    required this.onUpdate,
   });
 
   @override
@@ -20,19 +22,31 @@ class SubjectDetailsScreen extends StatefulWidget {
 }
 
 class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
+  late Subject _subject;
+
+  @override
+  void initState() {
+    super.initState();
+    _subject = widget.subject;
+  }
+
   Future<void> _editSubject() async {
     final result = await showDialog<Map<String, String>>(
       context: context,
       builder: (_) =>
-          EditSubjectDialog(subject: widget.subject, subjects: widget.subjects),
+          EditSubjectDialog(subject: _subject, subjects: widget.subjects),
     );
 
     if (!mounted || result == null) return;
 
     setState(() {
-      widget.subject.name = result['name']!;
-      widget.subject.description = result['description'] ?? '';
+      _subject = _subject.copyWith(
+        name: result['name']!,
+        description: result['description'] ?? '',
+      );
     });
+
+    widget.onUpdate(_subject);
   }
 
   Future<void> _deleteSubject() async {
@@ -42,7 +56,7 @@ class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
         return AlertDialog(
           title: const Text('Delete Subject?'),
           content: Text(
-            'Are you sure you want to delete "${widget.subject.name}"?',
+            'Are you sure you want to delete "${_subject.name}"?',
           ),
           actions: [
             TextButton(
@@ -88,14 +102,14 @@ class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.subject.name,
+              _subject.name,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 12),
             Text(
-              widget.subject.description.isEmpty
+              _subject.description.isEmpty
                   ? 'No description provided.'
-                  : widget.subject.description,
+                  : _subject.description,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
           ],

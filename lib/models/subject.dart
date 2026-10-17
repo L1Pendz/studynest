@@ -1,7 +1,22 @@
 class Subject {
   final String id;
-  String name;
-  String description;
+  final String name;
+  final String description;
 
-  Subject({required this.id, required this.name, this.description = ''});
+  const Subject({
+    required this.id,
+    required this.name,
+    this.description = '',
+  });
+
+  Subject copyWith({
+    String? name,
+    String? description,
+  }) {
+    return Subject(
+      id: id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+    );
+  }
 }
