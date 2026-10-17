@@ -39,17 +39,9 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     ResourcesScreen(),
   ];
 
-  static const List<String> _titles = [
-    'StudyNest',
-    'Subjects',
-    'Tasks',
-    'Study Resources',
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_titles[_selectedIndex])),
       body: _screens[_selectedIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
