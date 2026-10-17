@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:studynest/models/subject.dart';
 
 class AddSubjectDialog extends StatefulWidget {
-  const AddSubjectDialog({super.key});
+  final List<Subject> subjects;
+
+  const AddSubjectDialog({super.key, required this.subjects});
 
   @override
   State<AddSubjectDialog> createState() => _AddSubjectDialogState();
@@ -48,9 +51,21 @@ class _AddSubjectDialogState extends State<AddSubjectDialog> {
                   border: OutlineInputBorder(),
                 ),
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
+                  final name = value?.trim() ?? '';
+
+                  if (name.isEmpty) {
                     return 'Please enter a subject name.';
                   }
+
+                  final duplicateExists = widget.subjects.any(
+                    (subject) =>
+                        subject.name.toLowerCase() == name.toLowerCase(),
+                  );
+
+                  if (duplicateExists) {
+                    return 'Subject already exists.';
+                  }
+
                   return null;
                 },
                 onFieldSubmitted: (_) => _submit(),

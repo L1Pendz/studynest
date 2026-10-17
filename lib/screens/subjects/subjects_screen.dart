@@ -162,24 +162,13 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
   Future<void> _showAddSubjectDialog() async {
     final result = await showDialog<Map<String, String>>(
       context: context,
-      builder: (_) => const AddSubjectDialog(),
+      builder: (_) => AddSubjectDialog(subjects: _subjects),
     );
 
     if (!mounted || result == null) return;
 
     final name = result['name']!;
     final description = result['description'] ?? '';
-
-    final alreadyExists = _subjects.any(
-      (subject) => subject.name.toLowerCase() == name.toLowerCase(),
-    );
-
-    if (alreadyExists) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('This subject already exists.')),
-      );
-      return;
-    }
 
     setState(() {
       _subjects.add(
