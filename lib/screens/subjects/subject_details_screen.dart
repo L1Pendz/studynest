@@ -1,28 +1,67 @@
 import 'package:flutter/material.dart';
 
 import '../../models/subject.dart';
+import '../../widgets/subjects/edit_subject_dialog.dart';
 
-class SubjectDetailsScreen extends StatelessWidget {
+class SubjectDetailsScreen extends StatefulWidget {
   final Subject subject;
+  final List<Subject> subjects;
 
-  const SubjectDetailsScreen({super.key, required this.subject});
+  const SubjectDetailsScreen({
+    super.key,
+    required this.subject,
+    required this.subjects,
+  });
+
+  @override
+  State<SubjectDetailsScreen> createState() => _SubjectDetailsScreenState();
+}
+
+class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
+  Future<void> _editSubject() async {
+    final result = await showDialog<Map<String, String>>(
+      context: context,
+      builder: (_) => EditSubjectDialog(
+        subject: widget.subject,
+        subjects: widget.subjects,
+      ),
+    );
+
+    if (!mounted || result == null) return;
+
+    setState(() {
+      widget.subject.name = result['name']!;
+      widget.subject.description = result['description'] ?? '';
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Subject Details')),
+      appBar: AppBar(
+        title: const Text('Subject Details'),
+        actions: [
+          IconButton(
+            tooltip: 'Edit subject',
+            onPressed: _editSubject,
+            icon: const Icon(Icons.edit),
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              subject.name,
+              widget.subject.name,
               style: Theme.of(context).textTheme.headlineMedium,
             ),
             const SizedBox(height: 12),
             Text(
-              subject.description,
+              widget.subject.description.isEmpty
+                  ? 'No description provided.'
+                  : widget.subject.description,
               style: Theme.of(context).textTheme.bodyLarge,
             ),
           ],

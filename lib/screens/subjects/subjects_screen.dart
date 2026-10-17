@@ -186,9 +186,7 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
         Subject(
           id: DateTime.now().microsecondsSinceEpoch.toString(),
           name: name,
-          description: description.isEmpty
-              ? 'No description provided.'
-              : description,
+          description: description,
         ),
       );
     });
@@ -198,7 +196,7 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
     Navigator.push(
       context,
       MaterialPageRoute<void>(
-        builder: (_) => SubjectDetailsScreen(subject: subject),
+        builder: (_) => SubjectDetailsScreen(subject: subject, subjects: _subjects),
       ),
     );
   }
