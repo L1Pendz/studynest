@@ -18,13 +18,16 @@ class TaskDetailsScreen extends StatelessWidget {
     required this.onUpdate,
   });
 
+  static const Color _cardColor = Color(0xFFF3F7FE);
+  static const Color _borderColor = Color(0xFFB5CCE8);
+  static const Color _primaryColor = Color(0xFF8EC9F5);
+
   Subject? get _subject {
     for (final subject in subjects) {
       if (subject.id == task.subjectId) {
         return subject;
       }
     }
-
     return null;
   }
 
@@ -33,39 +36,116 @@ class TaskDetailsScreen extends StatelessWidget {
     final subject = _subject;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Task Details')),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: Column(
+          children: [
+            _buildHeader(context),
+            const Divider(height: 1, color: Colors.black87),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 30),
+                children: [
+                  _buildTaskCard(),
+                  const SizedBox(height: 24),
+                  _buildDetail(
+                    label: 'Subject',
+                    value: subject?.name ?? 'Unknown subject',
+                  ),
+                  const SizedBox(height: 20),
+                  _buildDetail(label: 'Description', value: task.description),
+                  const SizedBox(height: 20),
+                  _buildDetail(
+                    label: 'Deadline',
+                    value:
+                        '${_monthName(task.dueDate.month)} ${task.dueDate.day}, ${task.dueDate.year}',
+                  ),
+
+                  const SizedBox(height: 20),
+                  _buildThresholds(),
+                  const SizedBox(height: 30),
+                  _buildActions(context),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 20, 8),
+      child: Row(
         children: [
-          _buildTaskTitle(),
-          const SizedBox(height: 24),
-          _buildDetail(
-            label: 'Subject',
-            value: subject?.name ?? 'Unknown subject',
+          IconButton(
+            tooltip: 'Back',
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.arrow_back, size: 28),
           ),
-          const SizedBox(height: 20),
-          _buildDetail(label: 'Description', value: task.description),
-          const SizedBox(height: 20),
-          _buildDetail(
-            label: 'Deadline',
-            value:
-                '${task.dueDate.day}/${task.dueDate.month}/${task.dueDate.year}',
+          const Expanded(
+            child: Center(
+              child: Text(
+                'Task Details',
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+              ),
+            ),
           ),
-          const SizedBox(height: 20),
-          _buildUrgency(),
-          const SizedBox(height: 20),
-          _buildThresholds(),
-          const SizedBox(height: 30),
-          _buildActions(context),
+          const SizedBox(width: 48),
         ],
       ),
     );
   }
 
-  Widget _buildTaskTitle() {
-    return Text(
-      task.title,
-      style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+  Widget _buildTaskCard() {
+    final urgencyColor = _urgencyColor(task.urgency);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: _borderColor, width: 1.4),
+      ),
+      child: Row(
+        children: [
+          const CircleAvatar(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black87,
+            child: Icon(Icons.assignment_outlined),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              task.title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                decoration: task.isCompleted
+                    ? TextDecoration.lineThrough
+                    : null,
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
+            decoration: BoxDecoration(
+              color: urgencyColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              _urgencyLabel(task.urgency),
+              style: TextStyle(
+                color: urgencyColor,
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -75,32 +155,29 @@ class TaskDetailsScreen extends StatelessWidget {
       children: [
         Text(
           label,
-          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),
         const SizedBox(height: 6),
-        Text(value, style: const TextStyle(fontSize: 16)),
+        Text(value, style: const TextStyle(fontSize: 15, height: 1.4)),
       ],
     );
-  }
-
-  Widget _buildUrgency() {
-    final urgency = task.urgency;
-
-    return _buildDetail(label: 'Urgency', value: _urgencyLabel(urgency));
   }
 
   Widget _buildThresholds() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
+        const Text(
           'Urgency Thresholds',
-          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
         ),
-        const SizedBox(height: 8),
-        Text('Medium: ${task.mediumThreshold.inDays} days'),
-        Text('High: ${task.highThreshold.inDays} days'),
-        Text('Critical: ${task.criticalThreshold.inDays} day'),
+        const SizedBox(height: 6),
+        Text(
+          'Medium: ${task.mediumThreshold.inDays} days\n'
+          'High: ${task.highThreshold.inDays} days\n'
+          'Critical: ${task.criticalThreshold.inDays} days',
+          style: const TextStyle(fontSize: 15, height: 1.5),
+        ),
       ],
     );
   }
@@ -110,7 +187,17 @@ class TaskDetailsScreen extends StatelessWidget {
       children: [
         SizedBox(
           width: double.infinity,
+          height: 48,
           child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _primaryColor,
+              foregroundColor: Colors.black87,
+              elevation: 0,
+              side: const BorderSide(color: Colors.black87, width: 1.2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
             onPressed: () async {
               final updatedTask = await Navigator.push<Task>(
                 context,
@@ -125,15 +212,29 @@ class TaskDetailsScreen extends StatelessWidget {
               onUpdate(updatedTask);
               Navigator.pop(context);
             },
-            child: const Text('Edit Task'),
+            child: const Text(
+              'Edit Task',
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
           ),
         ),
         const SizedBox(height: 12),
         SizedBox(
           width: double.infinity,
+          height: 48,
           child: OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: const BorderSide(color: Colors.red, width: 1.5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
             onPressed: () => _confirmDelete(context),
-            child: const Text('Delete Task'),
+            child: const Text(
+              'Delete Task',
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
           ),
         ),
       ],
@@ -147,19 +248,16 @@ class TaskDetailsScreen extends StatelessWidget {
         return AlertDialog(
           title: const Text('Delete Task?'),
           content: const Text(
-            'Are you sure you want to delete this task? This action cannot be undone.',
+            'Are you sure you want to delete this task? '
+            'This action cannot be undone.',
           ),
           actions: [
             TextButton(
-              onPressed: () {
-                Navigator.pop(context, false);
-              },
+              onPressed: () => Navigator.pop(context, false),
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context, true);
-              },
+              onPressed: () => Navigator.pop(context, true),
               child: const Text('Delete'),
             ),
           ],
@@ -173,6 +271,19 @@ class TaskDetailsScreen extends StatelessWidget {
     Navigator.pop(context);
   }
 
+  Color _urgencyColor(TaskUrgency urgency) {
+    switch (urgency) {
+      case TaskUrgency.low:
+        return Colors.green;
+      case TaskUrgency.medium:
+        return Colors.yellow.shade700;
+      case TaskUrgency.high:
+        return Colors.orange;
+      case TaskUrgency.critical:
+        return Colors.red;
+    }
+  }
+
   String _urgencyLabel(TaskUrgency urgency) {
     switch (urgency) {
       case TaskUrgency.low:
@@ -184,5 +295,24 @@ class TaskDetailsScreen extends StatelessWidget {
       case TaskUrgency.critical:
         return 'Critical';
     }
+  }
+
+  String _monthName(int month) {
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
+
+    return months[month - 1];
   }
 }
