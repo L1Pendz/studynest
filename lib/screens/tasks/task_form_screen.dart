@@ -71,6 +71,8 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             _buildDueDateField(),
             const SizedBox(height: 28),
             _buildUrgencyThresholds(),
+            const SizedBox(height: 32),
+            _buildSaveButton(),
           ],
         ),
       ),
@@ -219,6 +221,16 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     );
   }
 
+  Widget _buildSaveButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton(
+        onPressed: _saveTask,
+        child: Text(widget.isEditing ? 'Save Changes' : 'Create Task'),
+      ),
+    );
+  }
+
   Future<void> _selectDueDate() async {
     final now = DateTime.now();
 
@@ -234,5 +246,55 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
     setState(() {
       _dueDate = selectedDate;
     });
+  }
+
+  void _saveTask() {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (_dueDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select a deadline.')),
+      );
+      return;
+    }
+
+    if (_selectedSubjectId == null) {
+      return;
+    }
+
+    if (!(_mediumThreshold > _highThreshold &&
+        _highThreshold > _criticalThreshold)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Thresholds must follow Medium > High > Critical.'),
+        ),
+      );
+      return;
+    }
+
+    final task =
+        widget.task?.copyWith(
+          title: _titleController.text.trim(),
+          subjectId: _selectedSubjectId,
+          description: _descriptionController.text.trim(),
+          dueDate: _dueDate,
+          mediumThreshold: Duration(days: _mediumThreshold),
+          highThreshold: Duration(days: _highThreshold),
+          criticalThreshold: Duration(days: _criticalThreshold),
+        ) ??
+        Task(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          title: _titleController.text.trim(),
+          subjectId: _selectedSubjectId!,
+          description: _descriptionController.text.trim(),
+          dueDate: _dueDate!,
+          mediumThreshold: Duration(days: _mediumThreshold),
+          highThreshold: Duration(days: _highThreshold),
+          criticalThreshold: Duration(days: _criticalThreshold),
+        );
+
+    Navigator.pop(context, task);
   }
 }
