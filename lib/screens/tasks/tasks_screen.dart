@@ -50,13 +50,105 @@ class _TasksScreenState extends State<TasksScreen> {
       description: 'Review software development methodologies.',
       dueDate: DateTime.now().add(const Duration(days: 2)),
     ),
+    Task(
+      id: '3',
+      title: 'Build Login Page',
+      subjectId: '3',
+      description: 'Create the login page using HTML, CSS, and JavaScript.',
+      dueDate: DateTime.now().add(const Duration(days: 10)),
+    ),
+    Task(
+      id: '4',
+      title: 'Prepare SQL Queries',
+      subjectId: '1',
+      description: 'Practice SELECT, JOIN, GROUP BY, and subqueries.',
+      dueDate: DateTime.now().add(const Duration(days: 1)),
+    ),
+    Task(
+      id: '5',
+      title: 'Software Design Documentation',
+      subjectId: '2',
+      description: 'Complete the system design documentation.',
+      dueDate: DateTime.now().add(const Duration(days: 3)),
+    ),
+    Task(
+      id: '6',
+      title: 'Create Portfolio Layout',
+      subjectId: '3',
+      description: 'Design the main layout for the personal portfolio website.',
+      dueDate: DateTime.now().add(const Duration(days: 7)),
+    ),
+    Task(
+      id: '7',
+      title: 'Database Normalization Exercises',
+      subjectId: '1',
+      description: 'Complete exercises on 1NF, 2NF, and 3NF.',
+      dueDate: DateTime.now().add(const Duration(days: 14)),
+    ),
+    Task(
+      id: '8',
+      title: 'Write Unit Tests',
+      subjectId: '2',
+      description: 'Add unit tests for the main application services.',
+      dueDate: DateTime.now().add(const Duration(hours: 18)),
+    ),
+    Task(
+      id: '9',
+      title: 'Fix Responsive Design',
+      subjectId: '3',
+      description: 'Make the website layout responsive on mobile devices.',
+      dueDate: DateTime.now().subtract(const Duration(days: 1)),
+    ),
+    Task(
+      id: '10',
+      title: 'Review Database Lecture',
+      subjectId: '1',
+      description: 'Review the lecture notes before the upcoming quiz.',
+      dueDate: DateTime.now().add(const Duration(days: 20)),
+      isCompleted: true,
+    ),
+    Task(
+      id: '11',
+      title: 'Agile Methodology Report',
+      subjectId: '2',
+      description: 'Write a short report about Agile development practices.',
+      dueDate: DateTime.now().add(const Duration(days: 4)),
+      isCompleted: true,
+    ),
+    Task(
+      id: '12',
+      title: 'JavaScript Form Validation',
+      subjectId: '3',
+      description: 'Add client-side validation to the registration form.',
+      dueDate: DateTime.now().add(const Duration(days: 6)),
+    ),
   ];
 
   String _searchQuery = '';
+  String? _selectedSubjectId;
+  TaskUrgency? _selectedUrgency;
+  bool? _selectedCompletionStatus;
 
   List<Task> get _filteredTasks {
     return _tasks.where((task) {
-      return task.title.toLowerCase().contains(_searchQuery.toLowerCase());
+      final matchesSearch = task.title.toLowerCase().contains(
+        _searchQuery.toLowerCase(),
+      );
+
+      final matchesSubject =
+          _selectedSubjectId == null || task.subjectId == _selectedSubjectId;
+
+      final matchesUrgency =
+          _selectedUrgency == null || task.urgency == _selectedUrgency;
+
+      final matchesCompletion =
+          _selectedCompletionStatus == null ||
+          task.isCompleted == _selectedCompletionStatus;
+
+      return matchesSearch &&
+          matchesSubject &&
+          matchesUrgency &&
+          matchesCompletion;
     }).toList();
   }
 
@@ -79,6 +171,9 @@ class _TasksScreenState extends State<TasksScreen> {
             _buildHeader(),
             const Divider(height: 1, color: Colors.black87),
             _buildSearchBar(),
+            _buildSubjectFilter(),
+            _buildUrgencyFilter(),
+            _buildCompletionFilter(),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 22),
               child: Text(
@@ -181,6 +276,111 @@ class _TasksScreenState extends State<TasksScreen> {
           ),
           contentPadding: const EdgeInsets.symmetric(vertical: 14),
         ),
+      ),
+    );
+  }
+
+  Widget _buildSubjectFilter() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+      child: DropdownButtonFormField<String?>(
+        initialValue: _selectedSubjectId,
+        decoration: InputDecoration(
+          labelText: 'Subject',
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.black87, width: 1.5),
+          ),
+        ),
+        items: [
+          const DropdownMenuItem<String?>(
+            value: null,
+            child: Text('All Subjects'),
+          ),
+          ..._subjects.map(
+            (subject) => DropdownMenuItem<String?>(
+              value: subject.id,
+              child: Text(subject.name),
+            ),
+          ),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _selectedSubjectId = value;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildUrgencyFilter() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+      child: DropdownButtonFormField<TaskUrgency?>(
+        initialValue: _selectedUrgency,
+        decoration: InputDecoration(
+          labelText: 'Urgency',
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.black87, width: 1.5),
+          ),
+        ),
+        items: const [
+          DropdownMenuItem<TaskUrgency?>(
+            value: null,
+            child: Text('All Urgencies'),
+          ),
+          DropdownMenuItem<TaskUrgency?>(
+            value: TaskUrgency.low,
+            child: Text('Low'),
+          ),
+          DropdownMenuItem<TaskUrgency?>(
+            value: TaskUrgency.medium,
+            child: Text('Medium'),
+          ),
+          DropdownMenuItem<TaskUrgency?>(
+            value: TaskUrgency.high,
+            child: Text('High'),
+          ),
+          DropdownMenuItem<TaskUrgency?>(
+            value: TaskUrgency.critical,
+            child: Text('Critical'),
+          ),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _selectedUrgency = value;
+          });
+        },
+      ),
+    );
+  }
+
+  Widget _buildCompletionFilter() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+      child: DropdownButtonFormField<bool?>(
+        initialValue: _selectedCompletionStatus,
+        decoration: InputDecoration(
+          labelText: 'Status',
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.black87, width: 1.5),
+          ),
+        ),
+        items: const [
+          DropdownMenuItem<bool?>(value: null, child: Text('All Tasks')),
+          DropdownMenuItem<bool?>(value: false, child: Text('Incomplete')),
+          DropdownMenuItem<bool?>(value: true, child: Text('Completed')),
+        ],
+        onChanged: (value) {
+          setState(() {
+            _selectedCompletionStatus = value;
+          });
+        },
       ),
     );
   }
