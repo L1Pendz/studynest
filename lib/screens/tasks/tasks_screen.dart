@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:studynest/screens/tasks/task_form_screen.dart';
 
 import '../../models/subject.dart';
 import '../../models/task.dart';
@@ -192,8 +193,19 @@ class _TasksScreenState extends State<TasksScreen> {
     return null;
   }
 
-  void _showAddTask() {
-    // Task form implementation goes here
+  Future<void> _showAddTask() async {
+    final task = await Navigator.push<Task>(
+      context,
+      MaterialPageRoute<Task>(
+        builder: (_) => TaskFormScreen(subjects: _subjects),
+      ),
+    );
+
+    if (!mounted || task == null) return;
+
+    setState(() {
+      _tasks.add(task);
+    });
   }
 
   void _openTask(Task task) {

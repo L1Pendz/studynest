@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:studynest/screens/tasks/task_form_screen.dart';
 
 import '../../models/subject.dart';
 import '../../models/task.dart';
@@ -21,7 +22,23 @@ class TaskDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Task Details')),
-      body: Center(child: Text(task.title)),
+      body: Center(
+        child: ElevatedButton(
+          onPressed: () async {
+            final updatedTask = await Navigator.push<Task>(
+              context,
+              MaterialPageRoute<Task>(
+                builder: (_) => TaskFormScreen(task: task, subjects: subjects),
+              ),
+            );
+
+            if (updatedTask == null) return;
+
+            onUpdate(updatedTask);
+          },
+          child: const Text('Edit Task'),
+        ),
+      ),
     );
   }
 }
