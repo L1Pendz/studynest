@@ -105,6 +105,19 @@ class _TasksScreenState extends State<TasksScreen> {
                           task: task,
                           subject: subject,
                           onTap: () => _openTask(task),
+                          onCompletionChanged: (isCompleted) {
+                            setState(() {
+                              final index = _tasks.indexWhere(
+                                (item) => item.id == task.id,
+                              );
+
+                              if (index != -1) {
+                                _tasks[index] = task.copyWith(
+                                  isCompleted: isCompleted,
+                                );
+                              }
+                            });
+                          },
                         );
                       },
                     ),

@@ -7,12 +7,14 @@ class TaskCard extends StatelessWidget {
   final Task task;
   final Subject subject;
   final VoidCallback onTap;
+  final ValueChanged<bool> onCompletionChanged;
 
   const TaskCard({
     super.key,
     required this.task,
     required this.subject,
     required this.onTap,
+    required this.onCompletionChanged,
   });
 
   static const Color _cardColor = Color(0xFFF3F7FE);
@@ -58,10 +60,13 @@ class TaskCard extends StatelessWidget {
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        leading: const CircleAvatar(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black87,
-          child: Icon(Icons.assignment_outlined),
+        leading: Checkbox(
+          value: task.isCompleted,
+          onChanged: (value) {
+            if (value != null) {
+              onCompletionChanged(value);
+            }
+          },
         ),
         title: Text(
           task.title,
