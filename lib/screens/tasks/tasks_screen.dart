@@ -4,6 +4,7 @@ import 'package:studynest/screens/tasks/task_form_screen.dart';
 import '../../models/subject.dart';
 import '../../models/task.dart';
 import '../../widgets/tasks/task_card.dart';
+import '../../widgets/tasks/task_filter_button.dart';
 import 'task_details_screen.dart';
 
 class TasksScreen extends StatefulWidget {
@@ -171,7 +172,19 @@ class _TasksScreenState extends State<TasksScreen> {
             _buildHeader(),
             const Divider(height: 1, color: Colors.black87),
             _buildSearchBar(),
-            _buildFilterButton(),
+            TaskFilterButton(
+              subjects: _subjects,
+              selectedSubjectId: _selectedSubjectId,
+              selectedUrgency: _selectedUrgency,
+              selectedCompletionStatus: _selectedCompletionStatus,
+              onApply: (selection) {
+                setState(() {
+                  _selectedSubjectId = selection.subjectId;
+                  _selectedUrgency = selection.urgency;
+                  _selectedCompletionStatus = selection.completionStatus;
+                });
+              },
+            ),
             const Padding(
               padding: EdgeInsets.symmetric(horizontal: 22),
               child: Text(
@@ -244,7 +257,7 @@ class _TasksScreenState extends State<TasksScreen> {
 
   Widget _buildSearchBar() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
       child: TextField(
         controller: _searchController,
         onChanged: (value) {
@@ -275,260 +288,6 @@ class _TasksScreenState extends State<TasksScreen> {
           contentPadding: const EdgeInsets.symmetric(vertical: 14),
         ),
       ),
-    );
-  }
-
-  Widget _buildFilterButton() {
-    final filterCount = [
-      _selectedSubjectId != null,
-      _selectedUrgency != null,
-      _selectedCompletionStatus != null,
-    ].where((filter) => filter).length;
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
-      child: Row(
-        children: [
-          OutlinedButton.icon(
-            onPressed: _showFilterSheet,
-            icon: const Icon(Icons.filter_list),
-            label: const Text('Filter'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.black87,
-              side: const BorderSide(color: Colors.black87, width: 1.2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-          if (filterCount > 0) ...[
-            const SizedBox(width: 10),
-            Text(
-              '$filterCount active',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Future<void> _showFilterSheet() async {
-    String? temporarySubjectId = _selectedSubjectId;
-    TaskUrgency? temporaryUrgency = _selectedUrgency;
-    bool? temporaryCompletionStatus = _selectedCompletionStatus;
-
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setSheetState) {
-            return Padding(
-              padding: EdgeInsets.fromLTRB(
-                20,
-                20,
-                20,
-                MediaQuery.of(context).viewInsets.bottom + 20,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildFilterSheetHeader(context),
-                  const SizedBox(height: 20),
-
-                  _buildSubjectFilter(
-                    value: temporarySubjectId,
-                    onChanged: (value) {
-                      setSheetState(() {
-                        temporarySubjectId = value;
-                      });
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  _buildUrgencyFilter(
-                    value: temporaryUrgency,
-                    onChanged: (value) {
-                      setSheetState(() {
-                        temporaryUrgency = value;
-                      });
-                    },
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  _buildCompletionFilter(
-                    value: temporaryCompletionStatus,
-                    onChanged: (value) {
-                      setSheetState(() {
-                        temporaryCompletionStatus = value;
-                      });
-                    },
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  _buildFilterActions(
-                    context,
-                    onClear: () {
-                      setSheetState(() {
-                        temporarySubjectId = null;
-                        temporaryUrgency = null;
-                        temporaryCompletionStatus = null;
-                      });
-                    },
-                    onApply: () {
-                      setState(() {
-                        _selectedSubjectId = temporarySubjectId;
-                        _selectedUrgency = temporaryUrgency;
-                        _selectedCompletionStatus = temporaryCompletionStatus;
-                      });
-
-                      Navigator.pop(context);
-                    },
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _buildFilterSheetHeader(BuildContext context) {
-    return Row(
-      children: [
-        const Expanded(
-          child: Text(
-            'Filters',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-          ),
-        ),
-        IconButton(
-          tooltip: 'Close',
-          onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.close),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFilterActions(
-    BuildContext context, {
-    required VoidCallback onClear,
-    required VoidCallback onApply,
-  }) {
-    return Row(
-      children: [
-        Expanded(
-          child: OutlinedButton(onPressed: onClear, child: const Text('Clear')),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: ElevatedButton(onPressed: onApply, child: const Text('Apply')),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSubjectFilter({
-    required String? value,
-    required ValueChanged<String?> onChanged,
-  }) {
-    return DropdownButtonFormField<String?>(
-      initialValue: value,
-      decoration: InputDecoration(
-        labelText: 'Subject',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.black87, width: 1.5),
-        ),
-      ),
-      items: [
-        const DropdownMenuItem<String?>(
-          value: null,
-          child: Text('All Subjects'),
-        ),
-        ..._subjects.map(
-          (subject) => DropdownMenuItem<String?>(
-            value: subject.id,
-            child: Text(subject.name),
-          ),
-        ),
-      ],
-      onChanged: onChanged,
-    );
-  }
-
-  Widget _buildUrgencyFilter({
-    required TaskUrgency? value,
-    required ValueChanged<TaskUrgency?> onChanged,
-  }) {
-    return DropdownButtonFormField<TaskUrgency?>(
-      initialValue: value,
-      decoration: InputDecoration(
-        labelText: 'Urgency',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.black87, width: 1.5),
-        ),
-      ),
-      items: const [
-        DropdownMenuItem<TaskUrgency?>(
-          value: null,
-          child: Text('All Urgencies'),
-        ),
-        DropdownMenuItem<TaskUrgency?>(
-          value: TaskUrgency.low,
-          child: Text('Low'),
-        ),
-        DropdownMenuItem<TaskUrgency?>(
-          value: TaskUrgency.medium,
-          child: Text('Medium'),
-        ),
-        DropdownMenuItem<TaskUrgency?>(
-          value: TaskUrgency.high,
-          child: Text('High'),
-        ),
-        DropdownMenuItem<TaskUrgency?>(
-          value: TaskUrgency.critical,
-          child: Text('Critical'),
-        ),
-      ],
-      onChanged: onChanged,
-    );
-  }
-
-  Widget _buildCompletionFilter({
-    required bool? value,
-    required ValueChanged<bool?> onChanged,
-  }) {
-    return DropdownButtonFormField<bool?>(
-      initialValue: value,
-      decoration: InputDecoration(
-        labelText: 'Status',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.black87, width: 1.5),
-        ),
-      ),
-      items: const [
-        DropdownMenuItem<bool?>(value: null, child: Text('All Tasks')),
-        DropdownMenuItem<bool?>(value: false, child: Text('Incomplete')),
-        DropdownMenuItem<bool?>(value: true, child: Text('Completed')),
-      ],
-      onChanged: onChanged,
     );
   }
 
