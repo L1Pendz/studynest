@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../models/subject.dart';
 import '../../models/task.dart';
+import '../../widgets/tasks/task_form_fields.dart';
+import '../../widgets/tasks/task_threshold_section.dart';
 
 class TaskFormScreen extends StatefulWidget {
   final Task? task;
@@ -29,7 +31,6 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   int _criticalThreshold = 1;
 
   static const Color _primaryColor = Color(0xFF8EC9F5);
-  static const Color _borderColor = Color(0xFF1F1F1F);
 
   @override
   void initState() {
@@ -87,312 +88,47 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(24, 22, 24, 30),
           children: [
-            _buildTitleField(),
+            TaskTitleField(controller: _titleController),
             const SizedBox(height: 18),
-            _buildSubjectDropdown(),
+            TaskSubjectDropdown(
+              subjects: widget.subjects,
+              selectedSubjectId: _selectedSubjectId,
+              onChanged: (value) {
+                setState(() {
+                  _selectedSubjectId = value;
+                });
+              },
+            ),
             const SizedBox(height: 18),
-            _buildDescriptionField(),
+            TaskDescriptionField(controller: _descriptionController),
             const SizedBox(height: 18),
-            _buildDueDateField(),
+            TaskDueDateField(dueDate: _dueDate, onTap: _selectDueDate),
             const SizedBox(height: 24),
-            _buildUrgencyThresholds(),
+            TaskThresholdSection(
+              mediumThreshold: _mediumThreshold,
+              highThreshold: _highThreshold,
+              criticalThreshold: _criticalThreshold,
+              onMediumChanged: (value) {
+                setState(() {
+                  _mediumThreshold = value;
+                });
+              },
+              onHighChanged: (value) {
+                setState(() {
+                  _highThreshold = value;
+                });
+              },
+              onCriticalChanged: (value) {
+                setState(() {
+                  _criticalThreshold = value;
+                });
+              },
+            ),
             const SizedBox(height: 30),
             _buildActionButtons(),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildTitleField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Task Name',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 7),
-        TextFormField(
-          controller: _titleController,
-          decoration: InputDecoration(
-            hintText: 'Enter task name...',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _borderColor, width: 1.5),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _borderColor, width: 1.5),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.black87, width: 2),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
-          ),
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Please enter a task name.';
-            }
-
-            return null;
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSubjectDropdown() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Subject',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 7),
-        DropdownButtonFormField<String>(
-          initialValue: _selectedSubjectId,
-          isExpanded: true,
-          hint: const Text('Select subject...'),
-          icon: const Icon(Icons.keyboard_arrow_down),
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _borderColor, width: 1.5),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _borderColor, width: 1.5),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.black87, width: 2),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 4,
-            ),
-          ),
-          items: widget.subjects.map((subject) {
-            return DropdownMenuItem(
-              value: subject.id,
-              child: Text(subject.name),
-            );
-          }).toList(),
-          onChanged: (value) {
-            setState(() {
-              _selectedSubjectId = value;
-            });
-          },
-          validator: (value) {
-            if (value == null) {
-              return 'Please select a subject.';
-            }
-
-            return null;
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDescriptionField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Description',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 7),
-        TextFormField(
-          controller: _descriptionController,
-          maxLines: 5,
-          decoration: InputDecoration(
-            hintText: 'Enter task details...',
-            alignLabelWithHint: true,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _borderColor, width: 1.5),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _borderColor, width: 1.5),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.black87, width: 2),
-            ),
-            contentPadding: const EdgeInsets.all(16),
-          ),
-          validator: (value) {
-            if (value == null || value.trim().isEmpty) {
-              return 'Please enter a description.';
-            }
-
-            return null;
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDueDateField() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Deadline',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 7),
-        InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: _selectDueDate,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              border: Border.all(color: _borderColor, width: 1.5),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    _dueDate == null
-                        ? 'Select date...'
-                        : '${_dueDate!.day}/${_dueDate!.month}/${_dueDate!.year}',
-                    style: TextStyle(
-                      color: _dueDate == null
-                          ? Colors.grey.shade600
-                          : Colors.black87,
-                    ),
-                  ),
-                ),
-                const Icon(Icons.keyboard_arrow_down),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildUrgencyThresholds() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Urgency Thresholds',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          'Set how many days before the deadline the task changes urgency.',
-          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          'The task becomes more urgent as the deadline gets closer.',
-          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-        ),
-        const SizedBox(height: 16),
-        _buildThresholdRow(
-          label: 'Medium',
-          value: _mediumThreshold,
-          labelColor: Colors.yellow.shade700,
-          onChanged: (value) {
-            setState(() {
-              _mediumThreshold = value;
-            });
-          },
-        ),
-        const SizedBox(height: 10),
-        _buildThresholdRow(
-          label: 'High',
-          value: _highThreshold,
-          labelColor: Colors.orange,
-          onChanged: (value) {
-            setState(() {
-              _highThreshold = value;
-            });
-          },
-        ),
-        const SizedBox(height: 10),
-        _buildThresholdRow(
-          label: 'Critical',
-          value: _criticalThreshold,
-          labelColor: Colors.red,
-          onChanged: (value) {
-            setState(() {
-              _criticalThreshold = value;
-            });
-          },
-        ),
-      ],
-    );
-  }
-
-  Widget _buildThresholdRow({
-    required String label,
-    required int value,
-    required Color labelColor,
-    required ValueChanged<int> onChanged,
-  }) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 85,
-          child: Text(
-            label,
-            style: TextStyle(
-              color: labelColor,
-              fontSize: 15,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        Expanded(
-          child: DropdownButtonFormField<int>(
-            initialValue: value,
-            isExpanded: true,
-            icon: const Icon(Icons.keyboard_arrow_down),
-            decoration: InputDecoration(
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 4,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: _borderColor, width: 1.5),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: _borderColor, width: 1.5),
-              ),
-            ),
-            items: List.generate(30, (index) {
-              final days = index + 1;
-
-              return DropdownMenuItem(
-                value: days,
-                child: Text('$days ${days == 1 ? 'day' : 'days'} left'),
-              );
-            }),
-            onChanged: (value) {
-              if (value != null) {
-                onChanged(value);
-              }
-            },
-          ),
-        ),
-      ],
     );
   }
 
