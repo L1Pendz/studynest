@@ -1,10 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../models/subject.dart';
 import '../../models/task.dart';
 import 'task_form_screen.dart';
 
-class TaskDetailsScreen extends StatelessWidget {
+class TaskDetailsScreen extends StatefulWidget {
   final Task task;
   final List<Subject> subjects;
   final VoidCallback onDelete;
@@ -18,13 +19,37 @@ class TaskDetailsScreen extends StatelessWidget {
     required this.onUpdate,
   });
 
+  @override
+  State<TaskDetailsScreen> createState() => _TaskDetailsScreenState();
+}
+
+class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
+  Timer? _urgencyTimer;
+
   static const Color _cardColor = Color(0xFFF3F7FE);
   static const Color _borderColor = Color(0xFFB5CCE8);
   static const Color _primaryColor = Color(0xFF8EC9F5);
 
+  @override
+  void initState() {
+    super.initState();
+
+    _urgencyTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _urgencyTimer?.cancel();
+    super.dispose();
+  }
+
   Subject? get _subject {
-    for (final subject in subjects) {
-      if (subject.id == task.subjectId) {
+    for (final subject in widget.subjects) {
+      if (subject.id == widget.task.subjectId) {
         return subject;
       }
     }
@@ -53,12 +78,12 @@ class TaskDetailsScreen extends StatelessWidget {
                     value: subject?.name ?? 'Unknown subject',
                   ),
                   const SizedBox(height: 20),
-                  _buildDetail(label: 'Description', value: task.description),
+                  _buildDetail(label: 'Description', value: widget.task.description),
                   const SizedBox(height: 20),
                   _buildDetail(
                     label: 'Deadline',
                     value:
-                        '${_monthName(task.dueDate.month)} ${task.dueDate.day}, ${task.dueDate.year}',
+                        '${_monthName(widget.task.dueDate.month)} ${widget.task.dueDate.day}, ${widget.task.dueDate.year}',
                   ),
 
                   const SizedBox(height: 20),
@@ -99,7 +124,7 @@ class TaskDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildTaskCard() {
-    final urgencyColor = _urgencyColor(task.urgency);
+    final urgencyColor = _urgencyColor(widget.task.urgency);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
@@ -118,11 +143,11 @@ class TaskDetailsScreen extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              task.title,
+              widget.task.title,
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
-                decoration: task.isCompleted
+                decoration: widget.task.isCompleted
                     ? TextDecoration.lineThrough
                     : null,
               ),
@@ -136,7 +161,7 @@ class TaskDetailsScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
-              _urgencyLabel(task.urgency),
+              _urgencyLabel(widget.task.urgency),
               style: TextStyle(
                 color: urgencyColor,
                 fontWeight: FontWeight.w600,
@@ -173,9 +198,9 @@ class TaskDetailsScreen extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          'Medium: ${task.mediumThreshold.inDays} days\n'
-          'High: ${task.highThreshold.inDays} days\n'
-          'Critical: ${task.criticalThreshold.inDays} days',
+          'Medium: ${widget.task.mediumThreshold.inDays} days\n'
+          'High: ${widget.task.highThreshold.inDays} days\n'
+          'Critical: ${widget.task.criticalThreshold.inDays} days',
           style: const TextStyle(fontSize: 15, height: 1.5),
         ),
       ],
@@ -203,13 +228,13 @@ class TaskDetailsScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute<Task>(
                   builder: (_) =>
-                      TaskFormScreen(task: task, subjects: subjects),
+                      TaskFormScreen(task: widget.task, subjects: widget.subjects),
                 ),
               );
 
               if (!context.mounted || updatedTask == null) return;
 
-              onUpdate(updatedTask);
+              widget.onUpdate(updatedTask);
               Navigator.pop(context);
             },
             child: const Text(
@@ -267,7 +292,7 @@ class TaskDetailsScreen extends StatelessWidget {
 
     if (confirmed != true || !context.mounted) return;
 
-    onDelete();
+    widget.onDelete();
     Navigator.pop(context);
   }
 

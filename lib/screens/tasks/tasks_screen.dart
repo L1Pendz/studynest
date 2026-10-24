@@ -6,6 +6,7 @@ import '../../models/task.dart';
 import '../../widgets/tasks/task_card.dart';
 import '../../widgets/tasks/task_filter_button.dart';
 import 'task_details_screen.dart';
+import 'dart:async';
 
 class TasksScreen extends StatefulWidget {
   const TasksScreen({super.key});
@@ -37,6 +38,16 @@ class _TasksScreenState extends State<TasksScreen> {
   ];
 
   final List<Task> _tasks = [
+    // For testing urgency thresholds
+    // Task(
+    //   id: 'test',
+    //   title: 'Urgency Test',
+    //   subjectId: '1',
+    //   dueDate: DateTime.now().add(const Duration(seconds: 30)),
+    //   mediumThreshold: const Duration(seconds: 30),
+    //   highThreshold: const Duration(seconds: 20),
+    //   criticalThreshold: const Duration(seconds: 10),
+    // ),
     Task(
       id: '1',
       title: 'Finish Database Assignment',
@@ -129,6 +140,7 @@ class _TasksScreenState extends State<TasksScreen> {
   String? _selectedSubjectId;
   TaskUrgency? _selectedUrgency;
   bool? _selectedCompletionStatus;
+  Timer? _urgencyTimer;
 
   List<Task> get _filteredTasks {
     final tasks = _tasks.where((task) {
@@ -164,7 +176,19 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    _urgencyTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
   void dispose() {
+    _urgencyTimer?.cancel();
     _searchController.dispose();
     super.dispose();
   }
