@@ -6,7 +6,9 @@ import '../../widgets/subjects/subject_card.dart';
 import 'subject_details_screen.dart';
 
 class SubjectsScreen extends StatefulWidget {
-  const SubjectsScreen({super.key});
+  final List<Subject> initialSubjects;
+
+  const SubjectsScreen({super.key, required this.initialSubjects});
 
   @override
   State<SubjectsScreen> createState() => _SubjectsScreenState();
@@ -15,24 +17,7 @@ class SubjectsScreen extends StatefulWidget {
 class _SubjectsScreenState extends State<SubjectsScreen> {
   final _searchController = TextEditingController();
 
-  final List<Subject> _subjects = [
-    Subject(
-      id: '1',
-      name: 'Database Systems',
-      description: 'Study of database design, SQL, and data management.',
-    ),
-    Subject(
-      id: '2',
-      name: 'Software Engineering',
-      description: 'Study of software development processes and methodologies.',
-    ),
-    Subject(
-      id: '3',
-      name: 'Web Development',
-      description:
-          'Study of web application development using HTML, CSS, and JavaScript.',
-    ),
-  ];
+  late final List<Subject> _subjects = List.of(widget.initialSubjects);
 
   String _searchQuery = '';
 

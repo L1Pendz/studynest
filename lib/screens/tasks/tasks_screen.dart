@@ -9,7 +9,14 @@ import 'task_details_screen.dart';
 import 'dart:async';
 
 class TasksScreen extends StatefulWidget {
-  const TasksScreen({super.key});
+  final List<Subject> initialSubjects;
+  final List<Task> initialTasks;
+
+  const TasksScreen({
+    super.key,
+    required this.initialSubjects,
+    required this.initialTasks,
+  });
 
   @override
   State<TasksScreen> createState() => _TasksScreenState();
@@ -18,123 +25,8 @@ class TasksScreen extends StatefulWidget {
 class _TasksScreenState extends State<TasksScreen> {
   final _searchController = TextEditingController();
 
-  final List<Subject> _subjects = [
-    Subject(
-      id: '1',
-      name: 'Database Systems',
-      description: 'Study of database design, SQL, and data management.',
-    ),
-    Subject(
-      id: '2',
-      name: 'Software Engineering',
-      description: 'Study of software development processes and methodologies.',
-    ),
-    Subject(
-      id: '3',
-      name: 'Web Development',
-      description:
-          'Study of web application development using HTML, CSS, and JavaScript.',
-    ),
-  ];
-
-  final List<Task> _tasks = [
-    // For testing urgency thresholds
-    // Task(
-    //   id: 'test',
-    //   title: 'Urgency Test',
-    //   subjectId: '1',
-    //   dueDate: DateTime.now().add(const Duration(seconds: 30)),
-    //   mediumThreshold: const Duration(seconds: 30),
-    //   highThreshold: const Duration(seconds: 20),
-    //   criticalThreshold: const Duration(seconds: 10),
-    // ),
-    Task(
-      id: '1',
-      title: 'Finish Database Assignment',
-      subjectId: '1',
-      description: 'Complete the SQL exercises.',
-      dueDate: DateTime.now().add(const Duration(days: 5)),
-    ),
-    Task(
-      id: '2',
-      title: 'Study Software Engineering',
-      subjectId: '2',
-      description: 'Review software development methodologies.',
-      dueDate: DateTime.now().add(const Duration(days: 2)),
-    ),
-    Task(
-      id: '3',
-      title: 'Build Login Page',
-      subjectId: '3',
-      description: 'Create the login page using HTML, CSS, and JavaScript.',
-      dueDate: DateTime.now().add(const Duration(days: 10)),
-    ),
-    Task(
-      id: '4',
-      title: 'Prepare SQL Queries',
-      subjectId: '1',
-      description: 'Practice SELECT, JOIN, GROUP BY, and subqueries.',
-      dueDate: DateTime.now().add(const Duration(days: 1)),
-    ),
-    Task(
-      id: '5',
-      title: 'Software Design Documentation',
-      subjectId: '2',
-      description: 'Complete the system design documentation.',
-      dueDate: DateTime.now().add(const Duration(days: 3)),
-    ),
-    Task(
-      id: '6',
-      title: 'Create Portfolio Layout',
-      subjectId: '3',
-      description: 'Design the main layout for the personal portfolio website.',
-      dueDate: DateTime.now().add(const Duration(days: 7)),
-    ),
-    Task(
-      id: '7',
-      title: 'Database Normalization Exercises',
-      subjectId: '1',
-      description: 'Complete exercises on 1NF, 2NF, and 3NF.',
-      dueDate: DateTime.now().add(const Duration(days: 14)),
-    ),
-    Task(
-      id: '8',
-      title: 'Write Unit Tests',
-      subjectId: '2',
-      description: 'Add unit tests for the main application services.',
-      dueDate: DateTime.now().add(const Duration(hours: 18)),
-    ),
-    Task(
-      id: '9',
-      title: 'Fix Responsive Design',
-      subjectId: '3',
-      description: 'Make the website layout responsive on mobile devices.',
-      dueDate: DateTime.now().subtract(const Duration(days: 1)),
-    ),
-    Task(
-      id: '10',
-      title: 'Review Database Lecture',
-      subjectId: '1',
-      description: 'Review the lecture notes before the upcoming quiz.',
-      dueDate: DateTime.now().add(const Duration(days: 20)),
-      isCompleted: true,
-    ),
-    Task(
-      id: '11',
-      title: 'Agile Methodology Report',
-      subjectId: '2',
-      description: 'Write a short report about Agile development practices.',
-      dueDate: DateTime.now().add(const Duration(days: 4)),
-      isCompleted: true,
-    ),
-    Task(
-      id: '12',
-      title: 'JavaScript Form Validation',
-      subjectId: '3',
-      description: 'Add client-side validation to the registration form.',
-      dueDate: DateTime.now().add(const Duration(days: 6)),
-    ),
-  ];
+  late final List<Subject> _subjects = List.of(widget.initialSubjects);
+  late final List<Task> _tasks = List.of(widget.initialTasks);
 
   String _searchQuery = '';
   String? _selectedSubjectId;
