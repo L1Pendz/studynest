@@ -86,6 +86,22 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  Future<void> saveSubject(model.Subject subject) {
+    return into(subjectsTable).insertOnConflictUpdate(
+      SubjectsTableCompanion.insert(
+        id: subject.id,
+        name: subject.name,
+        description: Value(subject.description),
+      ),
+    );
+  }
+
+  Future<void> deleteSubject(String id) {
+    return (delete(
+      subjectsTable,
+    )..where((subject) => subject.id.equals(id))).go();
+  }
+
   List<SubjectsTableCompanion> get _starterSubjects => [
     SubjectsTableCompanion.insert(
       id: '1',

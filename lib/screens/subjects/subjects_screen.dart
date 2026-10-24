@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 
+import '../../data/app_database.dart';
 import '../../models/subject.dart';
 import '../../widgets/subjects/add_subject_dialog.dart';
 import '../../widgets/subjects/subject_card.dart';
 import 'subject_details_screen.dart';
 
 class SubjectsScreen extends StatefulWidget {
+  final AppDatabase database;
   final List<Subject> initialSubjects;
 
-  const SubjectsScreen({super.key, required this.initialSubjects});
+  const SubjectsScreen({
+    super.key,
+    required this.database,
+    required this.initialSubjects,
+  });
 
   @override
   State<SubjectsScreen> createState() => _SubjectsScreenState();
@@ -154,16 +160,19 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
 
     final name = result['name']!;
     final description = result['description'] ?? '';
+    final subject = Subject(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      name: name,
+      description: description,
+    );
 
-    setState(() {
-      _subjects.add(
-        Subject(
-          id: DateTime.now().microsecondsSinceEpoch.toString(),
-          name: name,
-          description: description,
-        ),
-      );
-    });
+    try {
+      await widget.database.saveSubject(subject);
+      if (!mounted) return;
+      setState(() => _subjects.add(subject));
+    } catch (_) {
+      _showStorageError();
+    }
   }
 
   void _openSubject(Subject subject) {
@@ -173,12 +182,16 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
         builder: (_) => SubjectDetailsScreen(
           subject: subject,
           subjects: _subjects,
-          onDelete: () {
+          onDelete: () async {
+            await widget.database.deleteSubject(subject.id);
+            if (!mounted) return;
             setState(() {
               _subjects.removeWhere((item) => item.id == subject.id);
             });
           },
-          onUpdate: (updatedSubject) {
+          onUpdate: (updatedSubject) async {
+            await widget.database.saveSubject(updatedSubject);
+            if (!mounted) return;
             setState(() {
               final index = _subjects.indexWhere(
                 (item) => item.id == updatedSubject.id,
@@ -191,6 +204,13 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
           },
         ),
       ),
+    );
+  }
+
+  void _showStorageError() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Could not save the subject. Try again.')),
     );
   }
 }

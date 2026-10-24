@@ -51,6 +51,7 @@ class _StudyNestAppState extends State<StudyNestApp> {
           }
 
           return MainNavigationScreen(
+            database: _database,
             subjects: snapshot.data!.subjects,
             tasks: snapshot.data!.tasks,
           );
@@ -61,11 +62,13 @@ class _StudyNestAppState extends State<StudyNestApp> {
 }
 
 class MainNavigationScreen extends StatefulWidget {
+  final AppDatabase database;
   final List<Subject> subjects;
   final List<Task> tasks;
 
   const MainNavigationScreen({
     super.key,
+    required this.database,
     required this.subjects,
     required this.tasks,
   });
@@ -79,7 +82,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   late final List<Widget> _screens = [
     const HomeScreen(),
-    SubjectsScreen(initialSubjects: widget.subjects),
+    SubjectsScreen(database: widget.database, initialSubjects: widget.subjects),
     TasksScreen(initialSubjects: widget.subjects, initialTasks: widget.tasks),
     const ResourcesScreen(),
   ];

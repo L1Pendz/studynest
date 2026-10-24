@@ -6,8 +6,8 @@ import '../../widgets/subjects/edit_subject_dialog.dart';
 class SubjectDetailsScreen extends StatefulWidget {
   final Subject subject;
   final List<Subject> subjects;
-  final VoidCallback onDelete;
-  final ValueChanged<Subject> onUpdate;
+  final Future<void> Function() onDelete;
+  final Future<void> Function(Subject) onUpdate;
 
   const SubjectDetailsScreen({
     super.key,
@@ -39,14 +39,18 @@ class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
 
     if (!mounted || result == null) return;
 
-    setState(() {
-      _subject = _subject.copyWith(
-        name: result['name']!,
-        description: result['description'] ?? '',
-      );
-    });
+    final updatedSubject = _subject.copyWith(
+      name: result['name']!,
+      description: result['description'] ?? '',
+    );
 
-    widget.onUpdate(_subject);
+    try {
+      await widget.onUpdate(updatedSubject);
+      if (!mounted) return;
+      setState(() => _subject = updatedSubject);
+    } catch (_) {
+      _showStorageError();
+    }
   }
 
   Future<void> _deleteSubject() async {
@@ -55,9 +59,7 @@ class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
       builder: (context) {
         return AlertDialog(
           title: const Text('Delete Subject?'),
-          content: Text(
-            'Are you sure you want to delete "${_subject.name}"?',
-          ),
+          content: Text('Are you sure you want to delete "${_subject.name}"?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
@@ -74,8 +76,18 @@ class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
 
     if (!mounted || confirmed != true) return;
 
-    widget.onDelete();
-    Navigator.pop(context);
+    try {
+      await widget.onDelete();
+      if (mounted) Navigator.pop(context);
+    } catch (_) {
+      _showStorageError();
+    }
+  }
+
+  void _showStorageError() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Could not save the subject. Try again.')),
+    );
   }
 
   @override
