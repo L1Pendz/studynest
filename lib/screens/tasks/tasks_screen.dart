@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:studynest/screens/tasks/task_form_screen.dart';
 
+import '../../data/app_database.dart';
 import '../../models/subject.dart';
 import '../../models/task.dart';
 import '../../widgets/tasks/task_card.dart';
@@ -9,11 +10,13 @@ import 'task_details_screen.dart';
 import 'dart:async';
 
 class TasksScreen extends StatefulWidget {
+  final AppDatabase database;
   final List<Subject> initialSubjects;
   final List<Task> initialTasks;
 
   const TasksScreen({
     super.key,
+    required this.database,
     required this.initialSubjects,
     required this.initialTasks,
   });
@@ -137,18 +140,17 @@ class _TasksScreenState extends State<TasksScreen> {
                           task: task,
                           subject: subject,
                           onTap: () => _openTask(task),
-                          onCompletionChanged: (isCompleted) {
-                            setState(() {
-                              final index = _tasks.indexWhere(
-                                (item) => item.id == task.id,
-                              );
-
-                              if (index != -1) {
-                                _tasks[index] = task.copyWith(
-                                  isCompleted: isCompleted,
-                                );
-                              }
-                            });
+                          onCompletionChanged: (isCompleted) async {
+                            final updatedTask = task.copyWith(
+                              isCompleted: isCompleted,
+                            );
+                            try {
+                              await widget.database.saveTask(updatedTask);
+                              if (!mounted) return;
+                              _replaceTask(updatedTask);
+                            } catch (_) {
+                              _showStorageError();
+                            }
                           },
                         );
                       },
@@ -248,9 +250,13 @@ class _TasksScreenState extends State<TasksScreen> {
 
     if (!mounted || task == null) return;
 
-    setState(() {
-      _tasks.add(task);
-    });
+    try {
+      await widget.database.saveTask(task);
+      if (!mounted) return;
+      setState(() => _tasks.add(task));
+    } catch (_) {
+      _showStorageError();
+    }
   }
 
   void _openTask(Task task) {
@@ -260,24 +266,34 @@ class _TasksScreenState extends State<TasksScreen> {
         builder: (_) => TaskDetailsScreen(
           task: task,
           subjects: _subjects,
-          onDelete: () {
+          onDelete: () async {
+            await widget.database.deleteTask(task.id);
+            if (!mounted) return;
             setState(() {
               _tasks.removeWhere((item) => item.id == task.id);
             });
           },
-          onUpdate: (updatedTask) {
-            setState(() {
-              final index = _tasks.indexWhere(
-                (item) => item.id == updatedTask.id,
-              );
-
-              if (index != -1) {
-                _tasks[index] = updatedTask;
-              }
-            });
+          onUpdate: (updatedTask) async {
+            await widget.database.saveTask(updatedTask);
+            if (!mounted) return;
+            _replaceTask(updatedTask);
           },
         ),
       ),
+    );
+  }
+
+  void _replaceTask(Task updatedTask) {
+    setState(() {
+      final index = _tasks.indexWhere((item) => item.id == updatedTask.id);
+      if (index != -1) _tasks[index] = updatedTask;
+    });
+  }
+
+  void _showStorageError() {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Could not save the task. Try again.')),
     );
   }
 }

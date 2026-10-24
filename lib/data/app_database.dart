@@ -102,6 +102,26 @@ class AppDatabase extends _$AppDatabase {
     )..where((subject) => subject.id.equals(id))).go();
   }
 
+  Future<void> saveTask(model.Task task) {
+    return into(tasksTable).insertOnConflictUpdate(
+      TasksTableCompanion.insert(
+        id: task.id,
+        title: task.title,
+        subjectId: task.subjectId,
+        description: Value(task.description),
+        dueDate: task.dueDate,
+        mediumThresholdMicros: task.mediumThreshold.inMicroseconds,
+        highThresholdMicros: task.highThreshold.inMicroseconds,
+        criticalThresholdMicros: task.criticalThreshold.inMicroseconds,
+        isCompleted: Value(task.isCompleted),
+      ),
+    );
+  }
+
+  Future<void> deleteTask(String id) {
+    return (delete(tasksTable)..where((task) => task.id.equals(id))).go();
+  }
+
   List<SubjectsTableCompanion> get _starterSubjects => [
     SubjectsTableCompanion.insert(
       id: '1',

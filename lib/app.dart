@@ -83,7 +83,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   late final List<Widget> _screens = [
     const HomeScreen(),
     SubjectsScreen(database: widget.database, initialSubjects: widget.subjects),
-    TasksScreen(initialSubjects: widget.subjects, initialTasks: widget.tasks),
+    TasksScreen(
+      database: widget.database,
+      initialSubjects: widget.subjects,
+      initialTasks: widget.tasks,
+    ),
     const ResourcesScreen(),
   ];
 

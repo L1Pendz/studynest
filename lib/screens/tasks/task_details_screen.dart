@@ -8,8 +8,8 @@ import 'task_form_screen.dart';
 class TaskDetailsScreen extends StatefulWidget {
   final Task task;
   final List<Subject> subjects;
-  final VoidCallback onDelete;
-  final ValueChanged<Task> onUpdate;
+  final Future<void> Function() onDelete;
+  final Future<void> Function(Task) onUpdate;
 
   const TaskDetailsScreen({
     super.key,
@@ -78,7 +78,10 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
                     value: subject?.name ?? 'Unknown subject',
                   ),
                   const SizedBox(height: 20),
-                  _buildDetail(label: 'Description', value: widget.task.description),
+                  _buildDetail(
+                    label: 'Description',
+                    value: widget.task.description,
+                  ),
                   const SizedBox(height: 20),
                   _buildDetail(
                     label: 'Deadline',
@@ -227,15 +230,21 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
               final updatedTask = await Navigator.push<Task>(
                 context,
                 MaterialPageRoute<Task>(
-                  builder: (_) =>
-                      TaskFormScreen(task: widget.task, subjects: widget.subjects),
+                  builder: (_) => TaskFormScreen(
+                    task: widget.task,
+                    subjects: widget.subjects,
+                  ),
                 ),
               );
 
               if (!context.mounted || updatedTask == null) return;
 
-              widget.onUpdate(updatedTask);
-              Navigator.pop(context);
+              try {
+                await widget.onUpdate(updatedTask);
+                if (context.mounted) Navigator.pop(context);
+              } catch (_) {
+                _showStorageError();
+              }
             },
             child: const Text(
               'Edit Task',
@@ -292,8 +301,18 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
 
     if (confirmed != true || !context.mounted) return;
 
-    widget.onDelete();
-    Navigator.pop(context);
+    try {
+      await widget.onDelete();
+      if (context.mounted) Navigator.pop(context);
+    } catch (_) {
+      _showStorageError();
+    }
+  }
+
+  void _showStorageError() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Could not save the task. Try again.')),
+    );
   }
 
   Color _urgencyColor(TaskUrgency urgency) {
