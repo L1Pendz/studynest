@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
+import '../models/study_material.dart';
 import '../models/subject.dart' as model;
 import '../models/task.dart' as model;
 
@@ -30,13 +31,27 @@ class TasksTable extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
-@DriftDatabase(tables: [SubjectsTable, TasksTable])
+class StudyMaterialsTable extends Table {
+  TextColumn get id => text()();
+  TextColumn get title => text()();
+  TextColumn get subjectId => text()();
+  TextColumn get description => text().withDefault(const Constant(''))();
+  TextColumn get type => textEnum<StudyMaterialType>()();
+  TextColumn get resourceLocation => text()();
+  TextColumn get fileName => text().nullable()();
+  DateTimeColumn get addedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+@DriftDatabase(tables: [SubjectsTable, TasksTable, StudyMaterialsTable])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? queryExecutor])
     : super(queryExecutor ?? driftDatabase(name: 'studynest'));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -46,6 +61,11 @@ class AppDatabase extends _$AppDatabase {
         batch.insertAll(subjectsTable, _starterSubjects);
         batch.insertAll(tasksTable, _starterTasks);
       });
+    },
+    onUpgrade: (Migrator migrator, int from, int to) async {
+      if (from < 2) {
+        await migrator.createTable(studyMaterialsTable);
+      }
     },
   );
 
