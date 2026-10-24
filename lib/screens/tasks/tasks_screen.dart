@@ -131,7 +131,7 @@ class _TasksScreenState extends State<TasksScreen> {
   bool? _selectedCompletionStatus;
 
   List<Task> get _filteredTasks {
-    return _tasks.where((task) {
+    final tasks = _tasks.where((task) {
       final matchesSearch = task.title.toLowerCase().contains(
         _searchQuery.toLowerCase(),
       );
@@ -151,6 +151,16 @@ class _TasksScreenState extends State<TasksScreen> {
           matchesUrgency &&
           matchesCompletion;
     }).toList();
+
+    tasks.sort((a, b) {
+      if (a.isCompleted != b.isCompleted) {
+        return a.isCompleted ? 1 : -1;
+      }
+
+      return a.dueDate.compareTo(b.dueDate);
+    });
+
+    return tasks;
   }
 
   @override
