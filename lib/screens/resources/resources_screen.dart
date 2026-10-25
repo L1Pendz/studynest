@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:open_filex/open_filex.dart';
-import 'package:url_launcher/url_launcher.dart';
-
 import '../../data/app_database.dart';
 import '../../data/material_file_storage.dart';
 import '../../models/study_material.dart';
 import '../../models/subject.dart';
 import 'add_material_screen.dart';
+import 'resource_details_screen.dart';
 
 class ResourcesScreen extends StatefulWidget {
   final AppDatabase database;
@@ -285,7 +283,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
           onPressed: () => _deleteMaterial(material),
           icon: const Icon(Icons.delete_outline),
         ),
-        onTap: () => _openMaterial(material),
+        onTap: () => _showMaterialDetails(material),
       ),
     );
   }
@@ -329,23 +327,21 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
     }
   }
 
-  Future<void> _openMaterial(StudyMaterial material) async {
-    try {
-      if (material.type == StudyMaterialType.link) {
-        final launched = await launchUrl(
-          Uri.parse(material.resourceLocation),
-          mode: LaunchMode.externalApplication,
-        );
-        if (!launched) throw StateError('Could not open link.');
-      } else {
-        final result = await OpenFilex.open(material.resourceLocation);
-        if (result.type != ResultType.done) {
-          throw StateError(result.message);
-        }
-      }
-    } catch (_) {
-      _showMessage('Could not open this material.');
-    }
+  Future<void> _showMaterialDetails(StudyMaterial material) async {
+    final subjectName = widget.subjects
+        .where((subject) => subject.id == material.subjectId)
+        .map((subject) => subject.name)
+        .firstOrNull;
+
+    await Navigator.push<void>(
+      context,
+      MaterialPageRoute<void>(
+        builder: (_) => ResourceDetailsScreen(
+          material: material,
+          subjectName: subjectName ?? 'Unknown subject',
+        ),
+      ),
+    );
   }
 
   Future<void> _deleteMaterial(StudyMaterial material) async {
