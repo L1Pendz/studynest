@@ -24,6 +24,9 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
   String? _subjectId;
   PlatformFile? _pickedFile;
 
+  static const Color _borderColor = Color(0xFF1F1F1F);
+  static const Color _primaryColor = Color(0xFF8EC9F5);
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -35,13 +38,51 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add Material')),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        leading: IconButton(
+          tooltip: 'Back',
+          onPressed: () => Navigator.pop(context),
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+        ),
+        title: const Text(
+          'Add Material',
+          style: TextStyle(
+            color: Colors.black87,
+            fontSize: 22,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        centerTitle: true,
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(1),
+          child: Divider(height: 1, thickness: 1.5, color: Colors.black87),
+        ),
+      ),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.fromLTRB(24, 22, 24, 30),
           children: [
             SegmentedButton<StudyMaterialType>(
+              style: ButtonStyle(
+                foregroundColor: const WidgetStatePropertyAll(Colors.black87),
+                backgroundColor: WidgetStateProperty.resolveWith((states) {
+                  return states.contains(WidgetState.selected)
+                      ? _primaryColor
+                      : Colors.white;
+                }),
+                side: const WidgetStatePropertyAll(
+                  BorderSide(color: _borderColor, width: 1.5),
+                ),
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
               segments: const [
                 ButtonSegment(
                   value: StudyMaterialType.document,
@@ -64,25 +105,43 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
             ),
             const SizedBox(height: 20),
             if (_type == StudyMaterialType.document) ...[
-              OutlinedButton.icon(
-                onPressed: _pickDocument,
-                icon: const Icon(Icons.add),
-                label: Text(_pickedFile?.name ?? 'Select file'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 22),
-                  alignment: Alignment.center,
+              _buildFieldLabel('Document'),
+              const SizedBox(height: 7),
+              InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: _pickDocument,
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: _borderColor, width: 1.5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.add),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          _pickedFile?.name ?? 'Select a document...',
+                        ),
+                      ),
+                      const Icon(Icons.keyboard_arrow_down),
+                    ],
+                  ),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 18),
             ] else ...[
+              _buildFieldLabel('Resource Link'),
+              const SizedBox(height: 7),
               TextFormField(
                 controller: _linkController,
                 keyboardType: TextInputType.url,
-                decoration: const InputDecoration(
-                  labelText: 'Resource link',
-                  hintText: 'https://example.com',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: _fieldDecoration(hintText: 'https://example.com'),
                 validator: (value) {
                   if (_type != StudyMaterialType.link) return null;
                   final uri = Uri.tryParse(value?.trim() ?? '');
@@ -94,15 +153,13 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
                   return null;
                 },
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 18),
             ],
+            _buildFieldLabel('Material Name'),
+            const SizedBox(height: 7),
             TextFormField(
               controller: _titleController,
-              decoration: const InputDecoration(
-                labelText: 'Material name',
-                hintText: 'Enter a material name...',
-                border: OutlineInputBorder(),
-              ),
+              decoration: _fieldDecoration(hintText: 'Enter material name...'),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
                   return 'Please enter a material name.';
@@ -111,12 +168,14 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
               },
             ),
             const SizedBox(height: 18),
+            _buildFieldLabel('Subject'),
+            const SizedBox(height: 7),
             DropdownButtonFormField<String>(
               initialValue: _subjectId,
-              decoration: const InputDecoration(
-                labelText: 'Subject *',
-                border: OutlineInputBorder(),
-              ),
+              isExpanded: true,
+              hint: const Text('Select subject...'),
+              icon: const Icon(Icons.keyboard_arrow_down),
+              decoration: _fieldDecoration(),
               items: widget.subjects
                   .map(
                     (subject) => DropdownMenuItem(
@@ -130,37 +189,99 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
                   value == null ? 'Please select a subject.' : null,
             ),
             const SizedBox(height: 18),
+            _buildFieldLabel('Description (optional)'),
+            const SizedBox(height: 7),
             TextFormField(
               controller: _descriptionController,
               maxLines: 4,
-              decoration: const InputDecoration(
-                labelText: 'Description (optional)',
-                hintText: 'Enter details about this material...',
+              decoration: _fieldDecoration(
+                hintText: 'Enter material details...',
                 alignLabelWithHint: true,
-                border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton(
-                    onPressed: _saveMaterial,
-                    child: const Text('Save Material'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancel'),
-                  ),
-                ),
-              ],
-            ),
+            _buildActionButtons(),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildFieldLabel(String label) {
+    return Text(
+      label,
+      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+    );
+  }
+
+  InputDecoration _fieldDecoration({
+    String? hintText,
+    bool alignLabelWithHint = false,
+  }) {
+    return InputDecoration(
+      hintText: hintText,
+      alignLabelWithHint: alignLabelWithHint,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: _borderColor, width: 1.5),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: _borderColor, width: 1.5),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Colors.black87, width: 2),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+    );
+  }
+
+  Widget _buildActionButtons() {
+    return Row(
+      children: [
+        Expanded(
+          child: SizedBox(
+            height: 50,
+            child: ElevatedButton(
+              onPressed: _saveMaterial,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _primaryColor,
+                foregroundColor: Colors.black87,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  side: const BorderSide(color: Colors.black87, width: 1.3),
+                ),
+              ),
+              child: const Text(
+                'Save Material',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: SizedBox(
+            height: 50,
+            child: OutlinedButton(
+              onPressed: () => Navigator.pop(context),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Colors.black87,
+                side: const BorderSide(color: Colors.black87, width: 1.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
