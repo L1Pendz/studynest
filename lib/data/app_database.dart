@@ -69,10 +69,17 @@ class AppDatabase extends _$AppDatabase {
     },
   );
 
-  Future<({List<model.Subject> subjects, List<model.Task> tasks})>
+  Future<
+    ({
+      List<model.Subject> subjects,
+      List<model.Task> tasks,
+      List<StudyMaterial> materials,
+    })
+  >
   loadOrSeedData() async {
     final subjectRows = await select(subjectsTable).get();
     final taskRows = await select(tasksTable).get();
+    final materialRows = await select(studyMaterialsTable).get();
 
     return (
       subjects: subjectRows
@@ -100,6 +107,20 @@ class AppDatabase extends _$AppDatabase {
                 microseconds: row.criticalThresholdMicros,
               ),
               isCompleted: row.isCompleted,
+            ),
+          )
+          .toList(),
+      materials: materialRows
+          .map(
+            (row) => StudyMaterial(
+              id: row.id,
+              title: row.title,
+              subjectId: row.subjectId,
+              description: row.description,
+              type: row.type,
+              resourceLocation: row.resourceLocation,
+              fileName: row.fileName,
+              addedAt: row.addedAt,
             ),
           )
           .toList(),
@@ -140,6 +161,27 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> deleteTask(String id) {
     return (delete(tasksTable)..where((task) => task.id.equals(id))).go();
+  }
+
+  Future<void> saveMaterial(StudyMaterial material) {
+    return into(studyMaterialsTable).insertOnConflictUpdate(
+      StudyMaterialsTableCompanion.insert(
+        id: material.id,
+        title: material.title,
+        subjectId: material.subjectId,
+        description: Value(material.description),
+        type: material.type,
+        resourceLocation: material.resourceLocation,
+        fileName: Value(material.fileName),
+        addedAt: material.addedAt,
+      ),
+    );
+  }
+
+  Future<void> deleteMaterial(String id) {
+    return (delete(
+      studyMaterialsTable,
+    )..where((material) => material.id.equals(id))).go();
   }
 
   List<SubjectsTableCompanion> get _starterSubjects => [

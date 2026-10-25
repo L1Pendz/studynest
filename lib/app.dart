@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'data/app_database.dart';
+import 'models/study_material.dart';
 import 'models/subject.dart';
 import 'models/task.dart';
 import 'screens/home/home_screen.dart';
@@ -17,8 +18,10 @@ class StudyNestApp extends StatefulWidget {
 
 class _StudyNestAppState extends State<StudyNestApp> {
   late final AppDatabase _database = AppDatabase();
-  late final Future<({List<Subject> subjects, List<Task> tasks})> _data =
-      _database.loadOrSeedData();
+  late final Future<
+    ({List<Subject> subjects, List<Task> tasks, List<StudyMaterial> materials})
+  >
+  _data = _database.loadOrSeedData();
 
   @override
   void dispose() {
@@ -35,28 +38,38 @@ class _StudyNestAppState extends State<StudyNestApp> {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
         useMaterial3: true,
       ),
-      home: FutureBuilder<({List<Subject> subjects, List<Task> tasks})>(
-        future: _data,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return const Scaffold(
-              body: Center(child: Text('Could not load saved StudyNest data.')),
-            );
-          }
+      home:
+          FutureBuilder<
+            ({
+              List<Subject> subjects,
+              List<Task> tasks,
+              List<StudyMaterial> materials,
+            })
+          >(
+            future: _data,
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const Scaffold(
+                  body: Center(
+                    child: Text('Could not load saved StudyNest data.'),
+                  ),
+                );
+              }
 
-          if (!snapshot.hasData) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
+              if (!snapshot.hasData) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
 
-          return MainNavigationScreen(
-            database: _database,
-            subjects: snapshot.data!.subjects,
-            tasks: snapshot.data!.tasks,
-          );
-        },
-      ),
+              return MainNavigationScreen(
+                database: _database,
+                subjects: snapshot.data!.subjects,
+                tasks: snapshot.data!.tasks,
+                materials: snapshot.data!.materials,
+              );
+            },
+          ),
     );
   }
 }
@@ -65,12 +78,14 @@ class MainNavigationScreen extends StatefulWidget {
   final AppDatabase database;
   final List<Subject> subjects;
   final List<Task> tasks;
+  final List<StudyMaterial> materials;
 
   const MainNavigationScreen({
     super.key,
     required this.database,
     required this.subjects,
     required this.tasks,
+    required this.materials,
   });
 
   @override
@@ -88,7 +103,11 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       initialSubjects: widget.subjects,
       initialTasks: widget.tasks,
     ),
-    const ResourcesScreen(),
+    ResourcesScreen(
+      database: widget.database,
+      subjects: widget.subjects,
+      initialMaterials: widget.materials,
+    ),
   ];
 
   @override
