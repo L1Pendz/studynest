@@ -59,7 +59,9 @@ class _StudyNestAppState extends State<StudyNestApp> {
       await _database.resetLocalData();
       if (!mounted) return;
       _retryLoading();
-    } catch (_) {
+    } catch (error, stackTrace) {
+      debugPrint('Could not reset local data: $error');
+      debugPrintStack(stackTrace: stackTrace);
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Could not reset local data.')),
