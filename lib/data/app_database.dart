@@ -156,6 +156,19 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
+  Future<void> resetLocalData() async {
+    await transaction(() async {
+      await delete(studyMaterialsTable).go();
+      await delete(tasksTable).go();
+      await delete(subjectsTable).go();
+
+      await batch((batch) {
+        batch.insertAll(subjectsTable, _starterSubjects);
+        batch.insertAll(tasksTable, _starterTasks);
+      });
+    });
+  }
+
   Future<void> saveSubject(model.Subject subject) {
     return into(subjectsTable).insertOnConflictUpdate(
       SubjectsTableCompanion.insert(
