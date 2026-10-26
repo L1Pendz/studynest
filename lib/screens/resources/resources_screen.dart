@@ -171,6 +171,11 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
   }
 
   Future<void> _showFilterSheet() async {
+    final subjectsInPickerOrder = [
+      ...widget.subjects.where((subject) => subject.isNoSubject),
+      ...widget.subjects.where((subject) => !subject.isNoSubject),
+    ];
+
     final selection = await showModalBottomSheet<Map<String, String?>>(
       context: context,
       isScrollControlled: true,
@@ -218,7 +223,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
                         value: null,
                         child: Text('All Subjects'),
                       ),
-                      ...widget.subjects.map(
+                      ...subjectsInPickerOrder.map(
                         (subject) => DropdownMenuItem<String?>(
                           value: subject.id,
                           child: Text(subject.name),

@@ -156,6 +156,11 @@ class _TaskFilterSheetContentState extends State<_TaskFilterSheetContent> {
   }
 
   Widget _buildSubjectFilter() {
+    final subjectsInPickerOrder = [
+      ...widget.subjects.where((subject) => subject.isNoSubject),
+      ...widget.subjects.where((subject) => !subject.isNoSubject),
+    ];
+
     return DropdownButtonFormField<String?>(
       initialValue: _subjectId,
       decoration: InputDecoration(
@@ -171,7 +176,7 @@ class _TaskFilterSheetContentState extends State<_TaskFilterSheetContent> {
           value: null,
           child: Text('All Subjects'),
         ),
-        ...widget.subjects.map(
+        ...subjectsInPickerOrder.map(
           (subject) => DropdownMenuItem<String?>(
             value: subject.id,
             child: Text(subject.name),
