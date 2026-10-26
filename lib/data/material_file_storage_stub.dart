@@ -5,3 +5,5 @@ Future<String> storePickedMaterial(PlatformFile file, String id) {
 }
 
 Future<void> deleteStoredMaterial(String path) async {}
+
+Future<void> clearStoredMaterials() async {}

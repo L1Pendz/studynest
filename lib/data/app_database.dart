@@ -7,6 +7,18 @@ import '../models/task.dart' as model;
 
 part 'app_database.g.dart';
 
+enum SavedDataSection { subjects, tasks, materials }
+
+class SavedDataLoadException implements Exception {
+  final SavedDataSection section;
+  final Object cause;
+
+  const SavedDataLoadException(this.section, this.cause);
+
+  @override
+  String toString() => 'Could not load saved $section data: $cause';
+}
+
 class SubjectsTable extends Table {
   TextColumn get id => text()();
   TextColumn get name => text()();
@@ -106,12 +118,9 @@ class AppDatabase extends _$AppDatabase {
     })
   >
   loadOrSeedData() async {
-    final subjectRows = await select(subjectsTable).get();
-    final taskRows = await select(tasksTable).get();
-    final materialRows = await select(studyMaterialsTable).get();
-
-    return (
-      subjects: subjectRows
+    final subjects = await _loadSection(SavedDataSection.subjects, () async {
+      final rows = await select(subjectsTable).get();
+      return rows
           .map(
             (row) => model.Subject(
               id: row.id,
@@ -119,8 +128,11 @@ class AppDatabase extends _$AppDatabase {
               description: row.description,
             ),
           )
-          .toList(),
-      tasks: taskRows
+          .toList();
+    });
+    final tasks = await _loadSection(SavedDataSection.tasks, () async {
+      final rows = await select(tasksTable).get();
+      return rows
           .map(
             (row) => model.Task(
               id: row.id,
@@ -138,8 +150,11 @@ class AppDatabase extends _$AppDatabase {
               isCompleted: row.isCompleted,
             ),
           )
-          .toList(),
-      materials: materialRows
+          .toList();
+    });
+    final materials = await _loadSection(SavedDataSection.materials, () async {
+      final rows = await select(studyMaterialsTable).get();
+      return rows
           .map(
             (row) => StudyMaterial(
               id: row.id,
@@ -152,8 +167,86 @@ class AppDatabase extends _$AppDatabase {
               addedAt: row.addedAt,
             ),
           )
-          .toList(),
-    );
+          .toList();
+    });
+
+    return (subjects: subjects, tasks: tasks, materials: materials);
+  }
+
+  Future<T> _loadSection<T>(
+    SavedDataSection section,
+    Future<T> Function() load,
+  ) async {
+    try {
+      return await load();
+    } catch (error, stackTrace) {
+      Error.throwWithStackTrace(
+        SavedDataLoadException(section, error),
+        stackTrace,
+      );
+    }
+  }
+
+  Future<void> resetSubjects() async {
+    final starterSubjectIds = _starterSubjects
+        .map((subject) => subject.id.value)
+        .toList();
+
+    await transaction(() async {
+      await (update(
+        tasksTable,
+      )..where((task) => task.subjectId.isNotIn(starterSubjectIds))).write(
+        TasksTableCompanion(subjectId: Value(model.Subject.noSubjectId)),
+      );
+      await (update(
+            studyMaterialsTable,
+          )..where((material) => material.subjectId.isNotIn(starterSubjectIds)))
+          .write(
+            StudyMaterialsTableCompanion(
+              subjectId: Value(model.Subject.noSubjectId),
+            ),
+          );
+      await delete(subjectsTable).go();
+      await batch((batch) {
+        batch.insertAll(subjectsTable, _starterSubjects);
+      });
+    });
+  }
+
+  Future<void> resetTasks() async {
+    await transaction(() async {
+      final subjectIds = (await select(
+        subjectsTable,
+      ).get()).map((subject) => subject.id).toSet();
+      final starterTasks = _starterTasks.map((task) {
+        if (subjectIds.contains(task.subjectId.value)) return task;
+        return task.copyWith(subjectId: Value(model.Subject.noSubjectId));
+      }).toList();
+
+      await delete(tasksTable).go();
+      await batch((batch) {
+        batch.insertAll(tasksTable, starterTasks);
+      });
+    });
+  }
+
+  Future<void> resetMaterials() async {
+    await transaction(() async {
+      await delete(studyMaterialsTable).go();
+    });
+  }
+
+  Future<void> resetLocalData() async {
+    await transaction(() async {
+      await delete(studyMaterialsTable).go();
+      await delete(tasksTable).go();
+      await delete(subjectsTable).go();
+
+      await batch((batch) {
+        batch.insertAll(subjectsTable, _starterSubjects);
+        batch.insertAll(tasksTable, _starterTasks);
+      });
+    });
   }
 
   Future<void> saveSubject(model.Subject subject) {
