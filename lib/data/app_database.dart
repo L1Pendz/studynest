@@ -51,7 +51,7 @@ class AppDatabase extends _$AppDatabase {
     : super(queryExecutor ?? driftDatabase(name: 'studynest'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -65,6 +65,35 @@ class AppDatabase extends _$AppDatabase {
     onUpgrade: (Migrator migrator, int from, int to) async {
       if (from < 2) {
         await migrator.createTable(studyMaterialsTable);
+      }
+      if (from < 3) {
+        await into(subjectsTable).insertOnConflictUpdate(
+          SubjectsTableCompanion.insert(
+            id: model.Subject.noSubjectId,
+            name: model.Subject.noSubjectName,
+            description: const Value(
+              'Tasks and materials without an assigned subject.',
+            ),
+          ),
+        );
+      }
+      if (from < 4) {
+        final subjectIds = (await select(
+          subjectsTable,
+        ).get()).map((subject) => subject.id).toList();
+
+        await (update(
+          tasksTable,
+        )..where((task) => task.subjectId.isNotIn(subjectIds))).write(
+          TasksTableCompanion(subjectId: Value(model.Subject.noSubjectId)),
+        );
+        await (update(
+          studyMaterialsTable,
+        )..where((material) => material.subjectId.isNotIn(subjectIds))).write(
+          StudyMaterialsTableCompanion(
+            subjectId: Value(model.Subject.noSubjectId),
+          ),
+        );
       }
     },
   );
@@ -137,10 +166,28 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
-  Future<void> deleteSubject(String id) {
-    return (delete(
-      subjectsTable,
-    )..where((subject) => subject.id.equals(id))).go();
+  Future<void> deleteSubject(String id) async {
+    if (id == model.Subject.noSubjectId) {
+      throw StateError('The No Subject category cannot be deleted.');
+    }
+
+    await transaction(() async {
+      await (update(
+        tasksTable,
+      )..where((task) => task.subjectId.equals(id))).write(
+        TasksTableCompanion(subjectId: Value(model.Subject.noSubjectId)),
+      );
+      await (update(
+        studyMaterialsTable,
+      )..where((material) => material.subjectId.equals(id))).write(
+        StudyMaterialsTableCompanion(
+          subjectId: Value(model.Subject.noSubjectId),
+        ),
+      );
+      await (delete(
+        subjectsTable,
+      )..where((subject) => subject.id.equals(id))).go();
+    });
   }
 
   Future<void> saveTask(model.Task task) {
@@ -185,6 +232,13 @@ class AppDatabase extends _$AppDatabase {
   }
 
   List<SubjectsTableCompanion> get _starterSubjects => [
+    SubjectsTableCompanion.insert(
+      id: model.Subject.noSubjectId,
+      name: model.Subject.noSubjectName,
+      description: const Value(
+        'Tasks and materials without an assigned subject.',
+      ),
+    ),
     SubjectsTableCompanion.insert(
       id: '1',
       name: 'Database Systems',

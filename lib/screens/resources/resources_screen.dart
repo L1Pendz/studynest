@@ -24,9 +24,21 @@ class ResourcesScreen extends StatefulWidget {
 
 class _ResourcesScreenState extends State<ResourcesScreen> {
   final _searchController = TextEditingController();
-  late final List<StudyMaterial> _materials = List.of(widget.initialMaterials);
+  late List<StudyMaterial> _materials = List.of(widget.initialMaterials);
   String _searchQuery = '';
   String? _selectedSubjectId;
+
+  @override
+  void didUpdateWidget(covariant ResourcesScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.initialMaterials, widget.initialMaterials)) {
+      _materials = List.of(widget.initialMaterials);
+    }
+    if (_selectedSubjectId != null &&
+        !widget.subjects.any((subject) => subject.id == _selectedSubjectId)) {
+      _selectedSubjectId = null;
+    }
+  }
 
   List<StudyMaterial> get _filteredMaterials {
     return _materials.where((material) {
@@ -159,6 +171,11 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
   }
 
   Future<void> _showFilterSheet() async {
+    final subjectsInPickerOrder = [
+      ...widget.subjects.where((subject) => subject.isNoSubject),
+      ...widget.subjects.where((subject) => !subject.isNoSubject),
+    ];
+
     final selection = await showModalBottomSheet<Map<String, String?>>(
       context: context,
       isScrollControlled: true,
@@ -206,7 +223,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
                         value: null,
                         child: Text('All Subjects'),
                       ),
-                      ...widget.subjects.map(
+                      ...subjectsInPickerOrder.map(
                         (subject) => DropdownMenuItem<String?>(
                           value: subject.id,
                           child: Text(subject.name),

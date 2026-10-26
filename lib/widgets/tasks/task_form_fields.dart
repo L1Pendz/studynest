@@ -67,6 +67,11 @@ class TaskSubjectDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final subjectsInPickerOrder = [
+      ...subjects.where((subject) => subject.isNoSubject),
+      ...subjects.where((subject) => !subject.isNoSubject),
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -98,7 +103,7 @@ class TaskSubjectDropdown extends StatelessWidget {
               vertical: 4,
             ),
           ),
-          items: subjects.map((subject) {
+          items: subjectsInPickerOrder.map((subject) {
             return DropdownMenuItem(
               value: subject.id,
               child: Text(subject.name),

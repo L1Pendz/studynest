@@ -94,26 +94,58 @@ class MainNavigationScreen extends StatefulWidget {
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
+  late List<Subject> _subjects;
+  late List<Task> _tasks;
+  late List<StudyMaterial> _materials;
 
-  late final List<Widget> _screens = [
-    const HomeScreen(),
-    SubjectsScreen(database: widget.database, initialSubjects: widget.subjects),
-    TasksScreen(
-      database: widget.database,
-      initialSubjects: widget.subjects,
-      initialTasks: widget.tasks,
-    ),
-    ResourcesScreen(
-      database: widget.database,
-      subjects: widget.subjects,
-      initialMaterials: widget.materials,
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _subjects = List.of(widget.subjects);
+    _tasks = List.of(widget.tasks);
+    _materials = List.of(widget.materials);
+  }
+
+  Future<void> _reloadData() async {
+    try {
+      final data = await widget.database.loadOrSeedData();
+      if (!mounted) return;
+      setState(() {
+        _subjects = data.subjects;
+        _tasks = data.tasks;
+        _materials = data.materials;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not refresh saved data.')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    final screens = [
+      const HomeScreen(),
+      SubjectsScreen(
+        database: widget.database,
+        initialSubjects: _subjects,
+        onSubjectsChanged: _reloadData,
+      ),
+      TasksScreen(
+        database: widget.database,
+        initialSubjects: _subjects,
+        initialTasks: _tasks,
+      ),
+      ResourcesScreen(
+        database: widget.database,
+        subjects: _subjects,
+        initialMaterials: _materials,
+      ),
+    ];
+
     return Scaffold(
-      body: IndexedStack(index: _selectedIndex, children: _screens),
+      body: IndexedStack(index: _selectedIndex, children: screens),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (index) {
