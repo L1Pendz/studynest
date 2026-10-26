@@ -37,6 +37,11 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final subjectsInPickerOrder = [
+      ...widget.subjects.where((subject) => subject.isNoSubject),
+      ...widget.subjects.where((subject) => !subject.isNoSubject),
+    ];
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -176,7 +181,7 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
               hint: const Text('Select subject...'),
               icon: const Icon(Icons.keyboard_arrow_down),
               decoration: _fieldDecoration(),
-              items: widget.subjects
+              items: subjectsInPickerOrder
                   .map(
                     (subject) => DropdownMenuItem(
                       value: subject.id,
