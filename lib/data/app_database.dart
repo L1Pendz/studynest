@@ -51,7 +51,7 @@ class AppDatabase extends _$AppDatabase {
     : super(queryExecutor ?? driftDatabase(name: 'studynest'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -65,6 +65,17 @@ class AppDatabase extends _$AppDatabase {
     onUpgrade: (Migrator migrator, int from, int to) async {
       if (from < 2) {
         await migrator.createTable(studyMaterialsTable);
+      }
+      if (from < 3) {
+        await into(subjectsTable).insertOnConflictUpdate(
+          SubjectsTableCompanion.insert(
+            id: model.Subject.noSubjectId,
+            name: model.Subject.noSubjectName,
+            description: const Value(
+              'Tasks and materials without an assigned subject.',
+            ),
+          ),
+        );
       }
     },
   );
@@ -185,6 +196,13 @@ class AppDatabase extends _$AppDatabase {
   }
 
   List<SubjectsTableCompanion> get _starterSubjects => [
+    SubjectsTableCompanion.insert(
+      id: model.Subject.noSubjectId,
+      name: model.Subject.noSubjectName,
+      description: const Value(
+        'Tasks and materials without an assigned subject.',
+      ),
+    ),
     SubjectsTableCompanion.insert(
       id: '1',
       name: 'Database Systems',

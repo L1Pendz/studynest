@@ -29,7 +29,8 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
 
   List<Subject> get _filteredSubjects {
     return _subjects.where((subject) {
-      return subject.name.toLowerCase().contains(_searchQuery.toLowerCase());
+      return !subject.isNoSubject &&
+          subject.name.toLowerCase().contains(_searchQuery.toLowerCase());
     }).toList();
   }
 
