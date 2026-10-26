@@ -28,8 +28,8 @@ class TasksScreen extends StatefulWidget {
 class _TasksScreenState extends State<TasksScreen> {
   final _searchController = TextEditingController();
 
-  late final List<Subject> _subjects = List.of(widget.initialSubjects);
-  late final List<Task> _tasks = List.of(widget.initialTasks);
+  late List<Subject> _subjects = List.of(widget.initialSubjects);
+  late List<Task> _tasks = List.of(widget.initialTasks);
 
   String _searchQuery = '';
   String? _selectedSubjectId;
@@ -79,6 +79,17 @@ class _TasksScreenState extends State<TasksScreen> {
         setState(() {});
       }
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant TasksScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.initialSubjects, widget.initialSubjects)) {
+      _subjects = List.of(widget.initialSubjects);
+    }
+    if (!identical(oldWidget.initialTasks, widget.initialTasks)) {
+      _tasks = List.of(widget.initialTasks);
+    }
   }
 
   @override

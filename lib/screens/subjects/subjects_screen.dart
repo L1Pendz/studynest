@@ -9,11 +9,13 @@ import 'subject_details_screen.dart';
 class SubjectsScreen extends StatefulWidget {
   final AppDatabase database;
   final List<Subject> initialSubjects;
+  final Future<void> Function() onSubjectsChanged;
 
   const SubjectsScreen({
     super.key,
     required this.database,
     required this.initialSubjects,
+    required this.onSubjectsChanged,
   });
 
   @override
@@ -23,9 +25,17 @@ class SubjectsScreen extends StatefulWidget {
 class _SubjectsScreenState extends State<SubjectsScreen> {
   final _searchController = TextEditingController();
 
-  late final List<Subject> _subjects = List.of(widget.initialSubjects);
+  late List<Subject> _subjects = List.of(widget.initialSubjects);
 
   String _searchQuery = '';
+
+  @override
+  void didUpdateWidget(covariant SubjectsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!identical(oldWidget.initialSubjects, widget.initialSubjects)) {
+      _subjects = List.of(widget.initialSubjects);
+    }
+  }
 
   List<Subject> get _filteredSubjects {
     return _subjects.where((subject) {
@@ -171,6 +181,7 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
       await widget.database.saveSubject(subject);
       if (!mounted) return;
       setState(() => _subjects.add(subject));
+      await widget.onSubjectsChanged();
     } catch (_) {
       _showStorageError();
     }
@@ -189,6 +200,7 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
             setState(() {
               _subjects.removeWhere((item) => item.id == subject.id);
             });
+            await widget.onSubjectsChanged();
           },
           onUpdate: (updatedSubject) async {
             await widget.database.saveSubject(updatedSubject);
@@ -202,6 +214,7 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                 _subjects[index] = updatedSubject;
               }
             });
+            await widget.onSubjectsChanged();
           },
         ),
       ),
