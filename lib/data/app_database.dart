@@ -215,7 +215,18 @@ class AppDatabase extends _$AppDatabase {
 
   Future<void> resetTasks() async {
     await transaction(() async {
+      final subjectIds = (await select(
+        subjectsTable,
+      ).get()).map((subject) => subject.id).toSet();
+      final starterTasks = _starterTasks.map((task) {
+        if (subjectIds.contains(task.subjectId.value)) return task;
+        return task.copyWith(subjectId: Value(model.Subject.noSubjectId));
+      }).toList();
+
       await delete(tasksTable).go();
+      await batch((batch) {
+        batch.insertAll(tasksTable, starterTasks);
+      });
     });
   }
 
