@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'data/app_database.dart';
+import 'data/material_file_storage.dart';
 import 'models/study_material.dart';
 import 'models/subject.dart';
 import 'models/task.dart';
@@ -18,10 +19,53 @@ class StudyNestApp extends StatefulWidget {
 
 class _StudyNestAppState extends State<StudyNestApp> {
   late final AppDatabase _database = AppDatabase();
-  late final Future<
+  late Future<
     ({List<Subject> subjects, List<Task> tasks, List<StudyMaterial> materials})
   >
   _data = _database.loadOrSeedData();
+
+  void _retryLoading() {
+    setState(() {
+      _data = _database.loadOrSeedData();
+    });
+  }
+
+  Future<void> _confirmAndReset(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Reset Local Data?'),
+        content: const Text(
+          'This will remove saved subjects, tasks, and study materials, '
+          'then restore the starter subjects and tasks. This cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Reset'),
+          ),
+        ],
+      ),
+    );
+
+    if (!mounted || !context.mounted || confirmed != true) return;
+
+    try {
+      await clearStoredMaterials();
+      await _database.resetLocalData();
+      if (!mounted) return;
+      _retryLoading();
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not reset local data.')),
+      );
+    }
+  }
 
   @override
   void dispose() {
@@ -49,9 +93,33 @@ class _StudyNestAppState extends State<StudyNestApp> {
             future: _data,
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                return const Scaffold(
+                return Scaffold(
                   body: Center(
-                    child: Text('Could not load saved StudyNest data.'),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Text('Could not load saved StudyNest data.'),
+                          const SizedBox(height: 16),
+                          Wrap(
+                            spacing: 12,
+                            runSpacing: 8,
+                            alignment: WrapAlignment.center,
+                            children: [
+                              OutlinedButton(
+                                onPressed: _retryLoading,
+                                child: const Text('Retry'),
+                              ),
+                              FilledButton(
+                                onPressed: () => _confirmAndReset(context),
+                                child: const Text('Reset Local Data'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 );
               }

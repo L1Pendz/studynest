@@ -33,3 +33,11 @@ Future<void> deleteStoredMaterial(String path) async {
   final file = File(path);
   if (await file.exists()) await file.delete();
 }
+
+Future<void> clearStoredMaterials() async {
+  final documents = await getApplicationDocumentsDirectory();
+  final directory = Directory(
+    '${documents.path}${Platform.pathSeparator}study_materials',
+  );
+  if (await directory.exists()) await directory.delete(recursive: true);
+}
