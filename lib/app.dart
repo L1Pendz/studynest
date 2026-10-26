@@ -55,7 +55,12 @@ class _StudyNestAppState extends State<StudyNestApp> {
     if (!mounted || !context.mounted || confirmed != true) return;
 
     try {
-      await clearStoredMaterials();
+      try {
+        await clearStoredMaterials();
+      } catch (error, stackTrace) {
+        debugPrint('Could not clear stored material files: $error');
+        debugPrintStack(stackTrace: stackTrace);
+      }
       await _database.resetLocalData();
       if (!mounted) return;
       _retryLoading();

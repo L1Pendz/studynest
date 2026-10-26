@@ -39,5 +39,9 @@ Future<void> clearStoredMaterials() async {
   final directory = Directory(
     '${documents.path}${Platform.pathSeparator}study_materials',
   );
-  if (await directory.exists()) await directory.delete(recursive: true);
+  if (!await directory.exists()) return;
+
+  await for (final entity in directory.list(followLinks: false)) {
+    if (entity is File) await entity.delete();
+  }
 }
