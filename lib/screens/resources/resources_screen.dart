@@ -588,11 +588,6 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
           '${_typeLabel(material)} · Added ${_formatDate(material.addedAt)}',
         ),
         isThreeLine: true,
-        trailing: IconButton(
-          tooltip: 'Remove material',
-          onPressed: () => _deleteMaterial(material),
-          icon: const Icon(Icons.delete_outline),
-        ),
         onTap: () => _showMaterialDetails(material),
       ),
     );
@@ -673,38 +668,6 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
         ),
       ),
     );
-  }
-
-  Future<void> _deleteMaterial(StudyMaterial material) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Remove Material?'),
-        content: Text('Remove "${material.title}" from your materials?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Remove'),
-          ),
-        ],
-      ),
-    );
-    if (!mounted || confirmed != true) return;
-
-    try {
-      await widget.database.deleteMaterial(material.id);
-      if (material.type == StudyMaterialType.document) {
-        await deleteStoredMaterial(material.resourceLocation);
-      }
-      if (!mounted) return;
-      setState(() => _materials.removeWhere((item) => item.id == material.id));
-    } catch (_) {
-      _showMessage('Could not remove the material. Try again.');
-    }
   }
 
   void _showMessage(String message) {
