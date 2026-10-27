@@ -318,7 +318,18 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
                   ],
                 ),
               ),
-              const Icon(Icons.open_in_new, size: 20),
+              IconButton(
+                tooltip: _isVideoSaved(video)
+                    ? 'Saved to My Materials'
+                    : 'Save to My Materials',
+                onPressed: () => _saveVideo(video),
+                icon: Icon(
+                  _isVideoSaved(video)
+                      ? Icons.bookmark
+                      : Icons.bookmark_add_outlined,
+                  color: _isVideoSaved(video) ? Colors.indigo : Colors.black87,
+                ),
+              ),
             ],
           ),
         ),
@@ -513,6 +524,40 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
 
     if (!mounted || selection == null) return;
     setState(() => _selectedSubjectId = selection['subjectId']);
+  }
+
+  bool _isVideoSaved(VideoSearchResult video) {
+    return _materials.any(
+      (material) =>
+          material.type == StudyMaterialType.link &&
+          material.resourceLocation == video.watchUrl.toString(),
+    );
+  }
+
+  Future<void> _saveVideo(VideoSearchResult video) async {
+    if (_isVideoSaved(video)) {
+      _showMessage('This video is already in My Materials.');
+      return;
+    }
+
+    final material = StudyMaterial(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      title: video.title,
+      subjectId: Subject.noSubjectId,
+      description: 'YouTube video by ${video.channelTitle}',
+      type: StudyMaterialType.link,
+      resourceLocation: video.watchUrl.toString(),
+      addedAt: DateTime.now(),
+    );
+
+    try {
+      await widget.database.saveMaterial(material);
+      if (!mounted) return;
+      setState(() => _materials.add(material));
+      _showMessage('Saved to My Materials.');
+    } catch (_) {
+      _showMessage('Could not save this video. Try again.');
+    }
   }
 
   Widget _buildMaterialCard(StudyMaterial material) {
