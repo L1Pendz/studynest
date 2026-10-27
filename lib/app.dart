@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app/saved_data_error_screen.dart';
 import 'data/app_database.dart';
 import 'features/resources/data/material_file_storage.dart';
 import 'features/resources/models/study_material.dart';
@@ -133,62 +134,15 @@ class _StudyNestAppState extends State<StudyNestApp> {
             future: _data,
             builder: (context, snapshot) {
               if (snapshot.hasError) {
-                final error = snapshot.error;
-                final failedSection = error is SavedDataLoadException
-                    ? error.section
-                    : null;
-                return Scaffold(
-                  body: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            failedSection == null
-                                ? 'Could not load saved StudyNest data.'
-                                : 'Could not load saved ${failedSection.name}.',
-                          ),
-                          const SizedBox(height: 16),
-                          Wrap(
-                            spacing: 12,
-                            runSpacing: 8,
-                            alignment: WrapAlignment.center,
-                            children: [
-                              OutlinedButton(
-                                onPressed: _retryLoading,
-                                child: const Text('Retry'),
-                              ),
-                              if (failedSection != null)
-                                FilledButton(
-                                  onPressed: () => _confirmAndReset(
-                                    context,
-                                    resetAll: false,
-                                    section: failedSection,
-                                  ),
-                                  child: Text(switch (failedSection) {
-                                    SavedDataSection.subjects =>
-                                      'Reset Subjects',
-                                    SavedDataSection.tasks => 'Reset Tasks',
-                                    SavedDataSection.materials =>
-                                      'Reset Materials',
-                                  }),
-                                ),
-                              FilledButton(
-                                onPressed: () =>
-                                    _confirmAndReset(context, resetAll: true),
-                                child: Text(
-                                  failedSection == SavedDataSection.materials
-                                      ? 'Reset All Local Data'
-                                      : 'Reset Local Data',
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                return SavedDataErrorScreen(
+                  error: snapshot.error,
+                  onRetry: _retryLoading,
+                  onResetSection: (section) => _confirmAndReset(
+                    context,
+                    resetAll: false,
+                    section: section,
                   ),
+                  onResetAll: () => _confirmAndReset(context, resetAll: true),
                 );
               }
 
