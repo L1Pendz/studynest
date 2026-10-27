@@ -9,6 +9,7 @@ import '../data/material_file_storage.dart';
 import '../models/study_material.dart';
 import '../models/video_search_result.dart';
 import '../services/youtube_video_search_service.dart';
+import '../widgets/my_materials_section.dart';
 import '../widgets/video_search_section.dart';
 import 'resource_details_screen.dart';
 import 'resource_form_screen.dart';
@@ -121,19 +122,24 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
                 ),
               ),
             ] else ...[
-              _buildSearchField(),
-              _buildFilterButton(),
               Expanded(
-                child: materials.isEmpty
-                    ? _buildEmptyState()
-                    : ListView.builder(
-                        padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-                        itemCount: materials.length,
-                        itemBuilder: (context, index) {
-                          final material = materials[index];
-                          return _buildMaterialCard(material);
-                        },
-                      ),
+                child: MyMaterialsSection(
+                  materials: materials,
+                  searchController: _searchController,
+                  searchQuery: _searchQuery,
+                  hasFilters:
+                      _searchQuery.isNotEmpty || _selectedSubjectId != null,
+                  filterIsActive: _selectedSubjectId != null,
+                  onSearchChanged: (value) =>
+                      setState(() => _searchQuery = value.trim()),
+                  onClearSearch: () {
+                    _searchController.clear();
+                    setState(() => _searchQuery = '');
+                  },
+                  onShowFilter: _showFilterSheet,
+                  itemBuilder: (context, index) =>
+                      _buildMaterialCard(materials[index]),
+                ),
               ),
             ],
           ],
@@ -239,65 +245,6 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
     } catch (_) {
       _showMessage('Could not open this video.');
     }
-  }
-
-  Widget _buildSearchField() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-      child: TextField(
-        controller: _searchController,
-        onChanged: (value) => setState(() => _searchQuery = value.trim()),
-        decoration: InputDecoration(
-          hintText: 'Search materials...',
-          prefixIcon: const Icon(Icons.search),
-          suffixIcon: _searchQuery.isEmpty
-              ? null
-              : IconButton(
-                  tooltip: 'Clear search',
-                  onPressed: () {
-                    _searchController.clear();
-                    setState(() => _searchQuery = '');
-                  },
-                  icon: const Icon(Icons.close),
-                ),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.black87, width: 1.5),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFilterButton() {
-    final filterIsActive = _selectedSubjectId != null;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
-      child: Row(
-        children: [
-          OutlinedButton.icon(
-            onPressed: _showFilterSheet,
-            icon: const Icon(Icons.filter_list),
-            label: const Text('Filter'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.black87,
-              side: const BorderSide(color: Colors.black87, width: 1.2),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-          ),
-          if (filterIsActive) ...[
-            const SizedBox(width: 10),
-            Text(
-              '1 active',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-            ),
-          ],
-        ],
-      ),
-    );
   }
 
   Future<void> _showFilterSheet() async {
@@ -457,18 +404,6 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
         ),
         isThreeLine: true,
         onTap: () => _showMaterialDetails(material),
-      ),
-    );
-  }
-
-  Widget _buildEmptyState() {
-    final hasFilter = _searchQuery.isNotEmpty || _selectedSubjectId != null;
-    return Center(
-      child: Text(
-        hasFilter
-            ? 'No materials found.'
-            : 'No materials yet. Tap + to add one.',
-        style: TextStyle(color: Colors.grey.shade600),
       ),
     );
   }
