@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../data/app_database.dart';
-import '../../data/material_file_storage.dart';
-import '../../models/study_material.dart';
-import '../../models/subject.dart';
+import '../../../data/app_database.dart';
+import '../../../data/material_file_storage.dart';
+import '../../../models/study_material.dart';
+import '../../../models/subject.dart';
 import 'resource_form_screen.dart';
 
 class ResourceDetailsScreen extends StatefulWidget {

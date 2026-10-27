@@ -9,7 +9,7 @@ import 'screens/home/home_screen.dart';
 import 'screens/subjects/subjects_screen.dart';
 import 'features/tasks/screens/tasks_screen.dart';
 import 'features/tasks/screens/task_details_screen.dart';
-import 'screens/resources/resources_screen.dart';
+import 'features/resources/screens/resources_screen.dart';
 
 class StudyNestApp extends StatefulWidget {
   const StudyNestApp({super.key});
