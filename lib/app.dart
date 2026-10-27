@@ -8,6 +8,7 @@ import 'models/task.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/subjects/subjects_screen.dart';
 import 'screens/tasks/tasks_screen.dart';
+import 'screens/tasks/task_details_screen.dart';
 import 'screens/resources/resources_screen.dart';
 
 class StudyNestApp extends StatefulWidget {
@@ -286,10 +287,56 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     Navigator.of(context).pop();
   }
 
+  Future<void> _updateTask(Task updatedTask) async {
+    await widget.database.saveTask(updatedTask);
+    if (!mounted) return;
+    setState(() {
+      _tasks = _tasks
+          .map((task) => task.id == updatedTask.id ? updatedTask : task)
+          .toList();
+    });
+  }
+
+  void _openTaskDetails(Task task) {
+    Navigator.push<void>(
+      context,
+      MaterialPageRoute<void>(
+        builder: (_) => TaskDetailsScreen(
+          task: task,
+          subjects: _subjects,
+          onDelete: () async {
+            await widget.database.deleteTask(task.id);
+            if (!mounted) return;
+            setState(() {
+              _tasks = _tasks.where((item) => item.id != task.id).toList();
+            });
+          },
+          onUpdate: _updateTask,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _updateTaskCompletion(Task task, bool isCompleted) async {
+    try {
+      await _updateTask(task.copyWith(isCompleted: isCompleted));
+    } catch (_) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not update the task. Try again.')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screens = [
-      const HomeScreen(),
+      HomeScreen(
+        subjects: _subjects,
+        tasks: _tasks,
+        onTaskTap: _openTaskDetails,
+        onCompletionChanged: _updateTaskCompletion,
+      ),
       SubjectsScreen(
         database: widget.database,
         initialSubjects: _subjects,

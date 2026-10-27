@@ -75,7 +75,11 @@ class TaskCard extends StatelessWidget {
             decoration: task.isCompleted ? TextDecoration.lineThrough : null,
           ),
         ),
-        subtitle: Text(subject.name),
+        subtitle: Text(
+          '${subject.name}\n'
+          'Due ${task.dueDate.month}/${task.dueDate.day}/${task.dueDate.year}',
+        ),
+        isThreeLine: true,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
