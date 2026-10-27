@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:studynest/utils/subject_lookup.dart';
-import 'package:studynest/utils/subject_ordering.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/app_database.dart';
@@ -10,6 +9,7 @@ import '../models/study_material.dart';
 import '../models/video_search_result.dart';
 import '../services/youtube_video_search_service.dart';
 import '../widgets/my_materials_section.dart';
+import '../widgets/resource_filter_sheet.dart';
 import '../widgets/video_search_section.dart';
 import 'resource_details_screen.dart';
 import 'resource_form_screen.dart';
@@ -248,8 +248,6 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
   }
 
   Future<void> _showFilterSheet() async {
-    final subjectsInPickerOrder = orderSubjectsForPicker(widget.subjects);
-
     final selection = await showModalBottomSheet<Map<String, String?>>(
       context: context,
       isScrollControlled: true,
@@ -257,84 +255,10 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) {
-        var draftSubjectId = _selectedSubjectId;
-        return StatefulBuilder(
-          builder: (context, setSheetState) {
-            return Padding(
-              padding: EdgeInsets.fromLTRB(
-                20,
-                20,
-                20,
-                MediaQuery.of(context).viewInsets.bottom + 20,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Filters',
-                    style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 20),
-                  DropdownButtonFormField<String?>(
-                    initialValue: draftSubjectId,
-                    decoration: InputDecoration(
-                      labelText: 'Subject',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(
-                          color: Colors.black87,
-                          width: 1.5,
-                        ),
-                      ),
-                    ),
-                    items: [
-                      const DropdownMenuItem<String?>(
-                        value: null,
-                        child: Text('All Subjects'),
-                      ),
-                      ...subjectsInPickerOrder.map(
-                        (subject) => DropdownMenuItem<String?>(
-                          value: subject.id,
-                          child: Text(subject.name),
-                        ),
-                      ),
-                    ],
-                    onChanged: (value) =>
-                        setSheetState(() => draftSubjectId = value),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () =>
-                              setSheetState(() => draftSubjectId = null),
-                          child: const Text('Clear'),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => Navigator.pop(
-                            context,
-                            <String, String?>{'subjectId': draftSubjectId},
-                          ),
-                          child: const Text('Apply'),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
-        );
-      },
+      builder: (_) => ResourceFilterSheet(
+        subjects: widget.subjects,
+        selectedSubjectId: _selectedSubjectId,
+      ),
     );
 
     if (!mounted || selection == null) return;
