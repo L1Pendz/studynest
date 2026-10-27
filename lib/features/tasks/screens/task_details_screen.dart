@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:studynest/utils/subject_lookup.dart';
 
+import '../../../app/app_theme.dart';
 import '../../../models/subject.dart';
 import '../../../models/task.dart';
 import 'task_form_screen.dart';
@@ -27,10 +28,6 @@ class TaskDetailsScreen extends StatefulWidget {
 
 class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   Timer? _urgencyTimer;
-
-  static const Color _cardColor = Color(0xFFF3F7FE);
-  static const Color _borderColor = Color(0xFFB5CCE8);
-  static const Color _primaryColor = Color(0xFF8EC9F5);
 
   @override
   void initState() {
@@ -58,15 +55,14 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
     final subject = _subject;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.canvas,
       body: SafeArea(
         child: Column(
           children: [
             _buildHeader(context),
-            const Divider(height: 1, color: Colors.black87),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 30),
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 30),
                 children: [
                   _buildTaskCard(),
                   const SizedBox(height: 24),
@@ -113,7 +109,11 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
             child: Center(
               child: Text(
                 'Task Details',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.ink,
+                ),
               ),
             ),
           ),
@@ -129,15 +129,15 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       decoration: BoxDecoration(
-        color: _cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _borderColor, width: 1.4),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppTheme.outline),
       ),
       child: Row(
         children: [
           const CircleAvatar(
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black87,
+            backgroundColor: Color(0xFFE8F0FE),
+            foregroundColor: AppTheme.primary,
             child: Icon(Icons.assignment_outlined),
           ),
           const SizedBox(width: 12),
@@ -146,7 +146,8 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
               widget.task.title,
               style: TextStyle(
                 fontSize: 16,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.ink,
                 decoration: widget.task.isCompleted
                     ? TextDecoration.lineThrough
                     : null,
@@ -180,10 +181,21 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.ink,
+          ),
         ),
         const SizedBox(height: 6),
-        Text(value, style: const TextStyle(fontSize: 15, height: 1.4)),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 15,
+            height: 1.4,
+            color: AppTheme.mutedInk,
+          ),
+        ),
       ],
     );
   }
@@ -194,14 +206,22 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
       children: [
         const Text(
           'Urgency Thresholds',
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.ink,
+          ),
         ),
         const SizedBox(height: 6),
         Text(
           'Medium: ${widget.task.mediumThreshold.inDays} days\n'
           'High: ${widget.task.highThreshold.inDays} days\n'
           'Critical: ${widget.task.criticalThreshold.inDays} days',
-          style: const TextStyle(fontSize: 15, height: 1.5),
+          style: const TextStyle(
+            fontSize: 15,
+            height: 1.5,
+            color: AppTheme.mutedInk,
+          ),
         ),
       ],
     );
@@ -215,12 +235,11 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
           height: 48,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: _primaryColor,
-              foregroundColor: Colors.black87,
+              backgroundColor: AppTheme.primary,
+              foregroundColor: Colors.white,
               elevation: 0,
-              side: const BorderSide(color: Colors.black87, width: 1.2),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
             onPressed: () async {
@@ -245,7 +264,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
             },
             child: const Text(
               'Edit Task',
-              style: TextStyle(fontWeight: FontWeight.w500),
+              style: TextStyle(fontWeight: FontWeight.w600),
             ),
           ),
         ),
@@ -258,7 +277,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
               foregroundColor: Colors.red,
               side: const BorderSide(color: Colors.red, width: 1.5),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
             onPressed: () => _confirmDelete(context),

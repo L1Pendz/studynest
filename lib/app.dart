@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app/saved_data_error_screen.dart';
+import 'app/app_theme.dart';
 import 'data/app_database.dart';
 import 'features/resources/data/material_file_storage.dart';
 import 'features/resources/models/study_material.dart';
@@ -119,10 +120,7 @@ class _StudyNestAppState extends State<StudyNestApp> {
     return MaterialApp(
       title: 'StudyNest',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light,
       home:
           FutureBuilder<
             ({
@@ -147,8 +145,21 @@ class _StudyNestAppState extends State<StudyNestApp> {
               }
 
               if (!snapshot.hasData) {
-                return const Scaffold(
-                  body: Center(child: CircularProgressIndicator()),
+                return Scaffold(
+                  backgroundColor: AppTheme.canvas,
+                  body: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircularProgressIndicator(),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Getting your study space ready...',
+                          style: TextStyle(color: AppTheme.mutedInk),
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               }
 

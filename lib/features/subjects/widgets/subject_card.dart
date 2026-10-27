@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/app_theme.dart';
 import '../../../models/subject.dart';
 
 class SubjectCard extends StatelessWidget {
@@ -8,31 +9,35 @@ class SubjectCard extends StatelessWidget {
 
   const SubjectCard({super.key, required this.subject, required this.onTap});
 
-  static const Color _cardColor = Color(0xFFF3F7FE);
-  static const Color _borderColor = Color(0xFFB5CCE8);
-
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       elevation: 0,
-      color: _cardColor,
+      color: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: _borderColor, width: 1.4),
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: AppTheme.outline),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
         leading: const CircleAvatar(
-          backgroundColor: Colors.white,
-          foregroundColor: Colors.black87,
+          backgroundColor: Color(0xFFE8F0FE),
+          foregroundColor: AppTheme.primary,
           child: Icon(Icons.menu_book_outlined),
         ),
         title: Text(
           subject.name,
-          style: const TextStyle(fontWeight: FontWeight.w500),
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            color: AppTheme.ink,
+          ),
         ),
-        trailing: const Icon(Icons.arrow_forward),
+        trailing: const Icon(
+          Icons.arrow_forward_ios_rounded,
+          size: 16,
+          color: AppTheme.mutedInk,
+        ),
         onTap: onTap,
       ),
     );

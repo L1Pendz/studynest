@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-const Color _borderColor = Color(0xFF1F1F1F);
+import '../../../app/app_theme.dart';
 
 class TaskThresholdSection extends StatelessWidget {
   final int mediumThreshold;
@@ -27,17 +27,21 @@ class TaskThresholdSection extends StatelessWidget {
       children: [
         const Text(
           'Urgency Thresholds',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.ink,
+          ),
         ),
         const SizedBox(height: 6),
         Text(
           'Set how many days before the deadline the task changes urgency.',
-          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+          style: TextStyle(color: AppTheme.mutedInk, fontSize: 13),
         ),
         const SizedBox(height: 6),
         Text(
           'The task becomes more urgent as the deadline gets closer.',
-          style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+          style: TextStyle(color: AppTheme.mutedInk, fontSize: 13),
         ),
         const SizedBox(height: 16),
         TaskThresholdRow(
@@ -90,7 +94,7 @@ class TaskThresholdRow extends StatelessWidget {
             style: TextStyle(
               color: labelColor,
               fontSize: 15,
-              fontWeight: FontWeight.w500,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -103,14 +107,6 @@ class TaskThresholdRow extends StatelessWidget {
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 4,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: _borderColor, width: 1.5),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: _borderColor, width: 1.5),
               ),
             ),
             items: List.generate(30, (index) {

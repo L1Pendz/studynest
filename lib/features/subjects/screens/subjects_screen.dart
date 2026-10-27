@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/app_theme.dart';
 import '../../../data/app_database.dart';
 import '../../../models/subject.dart';
 import '../widgets/add_subject_dialog.dart';
@@ -63,19 +64,22 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
     final subjects = _filteredSubjects;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.canvas,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(),
-            const Divider(height: 1, color: Colors.black87),
             _buildSearchBar(),
             const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 22),
+              padding: EdgeInsets.symmetric(horizontal: 20),
               child: Text(
                 'My Subjects',
-                style: TextStyle(fontSize: 19, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.ink,
+                ),
               ),
             ),
             const SizedBox(height: 16),
@@ -83,7 +87,7 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
               child: subjects.isEmpty
                   ? _buildEmptyState()
                   : ListView.builder(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
                       itemCount: subjects.length,
                       itemBuilder: (context, index) {
                         final subject = subjects[index];
@@ -109,13 +113,24 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
           const Expanded(
             child: Text(
               'Subjects',
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.ink,
+              ),
             ),
           ),
           IconButton(
             tooltip: 'Add subject',
             onPressed: _showAddSubjectDialog,
-            icon: const Icon(Icons.add, size: 32),
+            style: IconButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            icon: const Icon(Icons.add, size: 24),
           ),
         ],
       ),
@@ -124,7 +139,7 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
 
   Widget _buildSearchBar() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 20, 20, 28),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 20),
       child: TextField(
         controller: _searchController,
         onChanged: (value) {
@@ -147,12 +162,6 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
                   },
                   icon: const Icon(Icons.close),
                 ),
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Colors.black87, width: 1.5),
-          ),
-          contentPadding: const EdgeInsets.symmetric(vertical: 14),
         ),
       ),
     );
@@ -164,7 +173,7 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
         _searchQuery.isEmpty
             ? 'No subjects yet. Tap + to add one.'
             : 'No subjects found.',
-        style: TextStyle(color: Colors.grey.shade600),
+        style: const TextStyle(color: AppTheme.mutedInk),
       ),
     );
   }

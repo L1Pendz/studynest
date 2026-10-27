@@ -50,7 +50,6 @@ class _AddSubjectDialogState extends State<AddSubjectDialog> {
                 decoration: const InputDecoration(
                   labelText: 'Subject name',
                   hintText: 'e.g. Mobile Development',
-                  border: OutlineInputBorder(),
                 ),
                 validator: (value) => validateSubjectName(
                   value,
@@ -67,7 +66,6 @@ class _AddSubjectDialogState extends State<AddSubjectDialog> {
                 decoration: const InputDecoration(
                   labelText: 'Description (optional)',
                   hintText: 'What is this subject about?',
-                  border: OutlineInputBorder(),
                   alignLabelWithHint: true,
                 ),
               ),

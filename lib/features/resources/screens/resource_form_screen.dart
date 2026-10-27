@@ -2,6 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:studynest/utils/subject_ordering.dart';
 
+import '../../../app/app_theme.dart';
 import '../../../models/subject.dart';
 import '../data/material_file_storage.dart';
 import '../models/study_material.dart';
@@ -42,9 +43,6 @@ class _ResourceFormScreenState extends State<ResourceFormScreen> {
 
   bool get _isEditing => widget.initialMaterial != null;
 
-  static const Color _borderColor = Color(0xFF1F1F1F);
-  static const Color _primaryColor = Color(0xFF8EC9F5);
-
   @override
   void dispose() {
     _titleController.dispose();
@@ -58,33 +56,27 @@ class _ResourceFormScreenState extends State<ResourceFormScreen> {
     final subjectsInPickerOrder = orderSubjectsForPicker(widget.subjects);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.canvas,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
         leading: IconButton(
           tooltip: 'Back',
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: const Icon(Icons.arrow_back),
         ),
         title: Text(
           _isEditing ? 'Edit Resource' : 'Add Material',
           style: TextStyle(
-            color: Colors.black87,
+            color: AppTheme.ink,
             fontSize: 22,
             fontWeight: FontWeight.w500,
           ),
         ),
         centerTitle: true,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 1.5, color: Colors.black87),
-        ),
       ),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 22, 24, 30),
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 30),
           children: [
             _buildTypeControl(),
             const SizedBox(height: 20),
@@ -169,7 +161,7 @@ class _ResourceFormScreenState extends State<ResourceFormScreen> {
   Widget _buildFieldLabel(String label) {
     return Text(
       label,
-      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.ink),
     );
   }
 
@@ -179,15 +171,15 @@ class _ResourceFormScreenState extends State<ResourceFormScreen> {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          border: Border.all(color: _borderColor, width: 1.5),
-          borderRadius: BorderRadius.circular(12),
-          color: const Color(0xFFF3F7FE),
+          border: Border.all(color: AppTheme.outline),
+          borderRadius: BorderRadius.circular(14),
+          color: Colors.white,
         ),
         child: Row(
           children: [
             Icon(
               isDocument ? Icons.description_outlined : Icons.link,
-              color: Colors.black87,
+              color: AppTheme.primary,
             ),
             const SizedBox(width: 10),
             Text(isDocument ? 'Document' : 'Resource link'),
@@ -198,17 +190,17 @@ class _ResourceFormScreenState extends State<ResourceFormScreen> {
 
     return SegmentedButton<StudyMaterialType>(
       style: ButtonStyle(
-        foregroundColor: const WidgetStatePropertyAll(Colors.black87),
+        foregroundColor: const WidgetStatePropertyAll(AppTheme.primary),
         backgroundColor: WidgetStateProperty.resolveWith((states) {
           return states.contains(WidgetState.selected)
-              ? _primaryColor
+              ? const Color(0xFFDCE8F8)
               : Colors.white;
         }),
         side: const WidgetStatePropertyAll(
-          BorderSide(color: _borderColor, width: 1.5),
+          BorderSide(color: AppTheme.outline),
         ),
         shape: WidgetStatePropertyAll(
-          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
       ),
       segments: const [
@@ -240,19 +232,6 @@ class _ResourceFormScreenState extends State<ResourceFormScreen> {
     return InputDecoration(
       hintText: hintText,
       alignLabelWithHint: alignLabelWithHint,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _borderColor, width: 1.5),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: _borderColor, width: 1.5),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.black87, width: 2),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
     );
   }
 
@@ -265,17 +244,16 @@ class _ResourceFormScreenState extends State<ResourceFormScreen> {
             child: ElevatedButton(
               onPressed: _saveMaterial,
               style: ElevatedButton.styleFrom(
-                backgroundColor: _primaryColor,
-                foregroundColor: Colors.black87,
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  side: const BorderSide(color: Colors.black87, width: 1.3),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
               child: Text(
                 _isEditing ? 'Save Changes' : 'Save Material',
-                style: const TextStyle(fontWeight: FontWeight.w500),
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -287,15 +265,15 @@ class _ResourceFormScreenState extends State<ResourceFormScreen> {
             child: OutlinedButton(
               onPressed: () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.black87,
-                side: const BorderSide(color: Colors.black87, width: 1.3),
+                foregroundColor: AppTheme.primary,
+                side: const BorderSide(color: AppTheme.outline),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
               child: const Text(
                 'Cancel',
-                style: TextStyle(fontWeight: FontWeight.w500),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ),

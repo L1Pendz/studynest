@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/app_theme.dart';
 import '../models/video_search_result.dart';
 
 class VideoSearchSection extends StatelessWidget {
@@ -44,13 +45,6 @@ class VideoSearchSection extends StatelessWidget {
                 onPressed: () => onSearch(controller.text),
                 icon: const Icon(Icons.arrow_forward),
               ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Colors.black87, width: 1.5),
-              ),
             ),
           ),
         ),
@@ -92,7 +86,7 @@ class VideoSearchSection extends StatelessWidget {
               Icon(
                 Icons.ondemand_video_outlined,
                 size: 48,
-                color: Colors.blueGrey.shade300,
+                color: AppTheme.primary.withValues(alpha: 0.55),
               ),
               const SizedBox(height: 12),
               Text(
@@ -100,7 +94,7 @@ class VideoSearchSection extends StatelessWidget {
                     ? 'Search for a subject or study topic to find videos.'
                     : 'No videos found. Try another search.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey.shade700, height: 1.4),
+                style: const TextStyle(color: AppTheme.mutedInk, height: 1.4),
               ),
             ],
           ),
@@ -118,10 +112,10 @@ class VideoSearchSection extends StatelessWidget {
     final saved = isSaved(video);
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      color: const Color(0xFFF3F7FE),
+      color: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Color(0xFFB5CCE8)),
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: AppTheme.outline),
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(16),
@@ -187,7 +181,7 @@ class VideoSearchSection extends StatelessWidget {
                 onPressed: () => onSave(video),
                 icon: Icon(
                   saved ? Icons.bookmark : Icons.bookmark_add_outlined,
-                  color: saved ? Colors.indigo : Colors.black87,
+                  color: saved ? AppTheme.primary : AppTheme.mutedInk,
                 ),
               ),
             ],

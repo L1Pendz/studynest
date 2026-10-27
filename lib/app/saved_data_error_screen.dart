@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'app_theme.dart';
 import '../data/app_database.dart';
 
 class SavedDataErrorScreen extends StatelessWidget {
@@ -23,47 +24,70 @@ class SavedDataErrorScreen extends StatelessWidget {
         : null;
 
     return Scaffold(
+      backgroundColor: AppTheme.canvas,
       body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                failedSection == null
-                    ? 'Could not load saved StudyNest data.'
-                    : 'Could not load saved ${failedSection.name}.',
-              ),
-              const SizedBox(height: 16),
-              Wrap(
-                spacing: 12,
-                runSpacing: 8,
-                alignment: WrapAlignment.center,
-                children: [
-                  OutlinedButton(
-                    onPressed: onRetry,
-                    child: const Text('Retry'),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 480),
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(18),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFFF2DF),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                  if (failedSection != null)
+                  child: const Icon(
+                    Icons.cloud_off_outlined,
+                    size: 34,
+                    color: Color(0xFF9A5B00),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  failedSection == null
+                      ? 'Could not load saved StudyNest data.'
+                      : 'Could not load saved ${failedSection.name}.',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.ink,
+                  ),
+                ),
+                const SizedBox(height: 22),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    OutlinedButton(
+                      onPressed: onRetry,
+                      child: const Text('Retry'),
+                    ),
+                    if (failedSection != null)
+                      FilledButton(
+                        onPressed: () => onResetSection(failedSection),
+                        child: Text(switch (failedSection) {
+                          SavedDataSection.subjects => 'Reset Subjects',
+                          SavedDataSection.tasks => 'Reset Tasks',
+                          SavedDataSection.materials => 'Reset Materials',
+                        }),
+                      ),
                     FilledButton(
-                      onPressed: () => onResetSection(failedSection),
-                      child: Text(switch (failedSection) {
-                        SavedDataSection.subjects => 'Reset Subjects',
-                        SavedDataSection.tasks => 'Reset Tasks',
-                        SavedDataSection.materials => 'Reset Materials',
-                      }),
+                      onPressed: onResetAll,
+                      child: Text(
+                        failedSection == SavedDataSection.materials
+                            ? 'Reset All Local Data'
+                            : 'Reset Local Data',
+                      ),
                     ),
-                  FilledButton(
-                    onPressed: onResetAll,
-                    child: Text(
-                      failedSection == SavedDataSection.materials
-                          ? 'Reset All Local Data'
-                          : 'Reset Local Data',
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

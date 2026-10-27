@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/app_theme.dart';
 import '../../../models/subject.dart';
 import '../../../utils/subject_ordering.dart';
 
@@ -37,21 +38,16 @@ class _ResourceFilterSheetState extends State<ResourceFilterSheet> {
         children: [
           const Text(
             'Filters',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.ink,
+            ),
           ),
           const SizedBox(height: 20),
           DropdownButtonFormField<String?>(
             initialValue: _draftSubjectId,
-            decoration: InputDecoration(
-              labelText: 'Subject',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: Colors.black87, width: 1.5),
-              ),
-            ),
+            decoration: InputDecoration(labelText: 'Subject'),
             items: [
               const DropdownMenuItem<String?>(
                 value: null,
