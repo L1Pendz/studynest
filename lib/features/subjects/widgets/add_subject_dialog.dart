@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:studynest/models/subject.dart';
 
+import '../subject_name_validator.dart';
+
 class AddSubjectDialog extends StatefulWidget {
   final List<Subject> subjects;
 
@@ -50,24 +52,11 @@ class _AddSubjectDialogState extends State<AddSubjectDialog> {
                   hintText: 'e.g. Mobile Development',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  final name = value?.trim() ?? '';
-
-                  if (name.isEmpty) {
-                    return 'Please enter a subject name.';
-                  }
-
-                  final duplicateExists = widget.subjects.any(
-                    (subject) =>
-                        subject.name.toLowerCase() == name.toLowerCase(),
-                  );
-
-                  if (duplicateExists) {
-                    return 'Subject already exists.';
-                  }
-
-                  return null;
-                },
+                validator: (value) => validateSubjectName(
+                  value,
+                  widget.subjects,
+                  duplicateMessage: 'Subject already exists.',
+                ),
                 onFieldSubmitted: (_) => _submit(),
               ),
               const SizedBox(height: 16),

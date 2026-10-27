@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../models/subject.dart';
 
+import '../subject_name_validator.dart';
+
 class EditSubjectDialog extends StatefulWidget {
   final Subject subject;
   final List<Subject> subjects;
@@ -66,25 +68,12 @@ class _EditSubjectDialogState extends State<EditSubjectDialog> {
                   labelText: 'Subject name',
                   border: OutlineInputBorder(),
                 ),
-                validator: (value) {
-                  final name = value?.trim() ?? '';
-
-                  if (name.isEmpty) {
-                    return 'Please enter a subject name.';
-                  }
-
-                  final duplicateExists = widget.subjects.any(
-                    (subject) =>
-                        subject.id != widget.subject.id &&
-                        subject.name.toLowerCase() == name.toLowerCase(),
-                  );
-
-                  if (duplicateExists) {
-                    return 'Subject name already exists.';
-                  }
-
-                  return null;
-                },
+                validator: (value) => validateSubjectName(
+                  value,
+                  widget.subjects,
+                  excludedSubjectId: widget.subject.id,
+                  duplicateMessage: 'Subject name already exists.',
+                ),
               ),
               const SizedBox(height: 16),
               TextFormField(
