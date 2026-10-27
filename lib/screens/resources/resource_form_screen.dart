@@ -5,21 +5,21 @@ import '../../data/material_file_storage.dart';
 import '../../models/study_material.dart';
 import '../../models/subject.dart';
 
-class AddMaterialScreen extends StatefulWidget {
+class ResourceFormScreen extends StatefulWidget {
   final List<Subject> subjects;
   final StudyMaterial? initialMaterial;
 
-  const AddMaterialScreen({
+  const ResourceFormScreen({
     super.key,
     required this.subjects,
     this.initialMaterial,
   });
 
   @override
-  State<AddMaterialScreen> createState() => _AddMaterialScreenState();
+  State<ResourceFormScreen> createState() => _ResourceFormScreenState();
 }
 
-class _AddMaterialScreenState extends State<AddMaterialScreen> {
+class _ResourceFormScreenState extends State<ResourceFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late final _titleController = TextEditingController(
     text: widget.initialMaterial?.title ?? '',

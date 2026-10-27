@@ -6,7 +6,7 @@ import '../../data/app_database.dart';
 import '../../data/material_file_storage.dart';
 import '../../models/study_material.dart';
 import '../../models/subject.dart';
-import 'add_material_screen.dart';
+import 'resource_form_screen.dart';
 
 class ResourceDetailsScreen extends StatefulWidget {
   final StudyMaterial material;
@@ -284,7 +284,7 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
     final updated = await Navigator.push<StudyMaterial>(
       context,
       MaterialPageRoute<StudyMaterial>(
-        builder: (_) => AddMaterialScreen(
+        builder: (_) => ResourceFormScreen(
           subjects: widget.subjects,
           initialMaterial: _material,
         ),

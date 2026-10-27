@@ -6,7 +6,7 @@ import '../../models/study_material.dart';
 import '../../models/subject.dart';
 import '../../models/video_search_result.dart';
 import '../../services/youtube_video_search_service.dart';
-import 'add_material_screen.dart';
+import 'resource_form_screen.dart';
 import 'resource_details_screen.dart';
 
 class ResourcesScreen extends StatefulWidget {
@@ -614,7 +614,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
     final material = await Navigator.push<StudyMaterial>(
       context,
       MaterialPageRoute<StudyMaterial>(
-        builder: (_) => AddMaterialScreen(subjects: widget.subjects),
+        builder: (_) => ResourceFormScreen(subjects: widget.subjects),
       ),
     );
 
