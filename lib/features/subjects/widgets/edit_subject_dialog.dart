@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../models/subject.dart';
 
+import '../../../models/subject.dart';
 import '../subject_name_validator.dart';
 
 class EditSubjectDialog extends StatefulWidget {
