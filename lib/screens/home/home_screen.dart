@@ -2,12 +2,21 @@ import 'package:flutter/material.dart';
 
 import '../../models/subject.dart';
 import '../../models/task.dart';
+import '../../widgets/tasks/task_card.dart';
 
 class HomeScreen extends StatelessWidget {
   final List<Subject> subjects;
   final List<Task> tasks;
+  final ValueChanged<Task> onTaskTap;
+  final Future<void> Function(Task, bool) onCompletionChanged;
 
-  const HomeScreen({super.key, required this.subjects, required this.tasks});
+  const HomeScreen({
+    super.key,
+    required this.subjects,
+    required this.tasks,
+    required this.onTaskTap,
+    required this.onCompletionChanged,
+  });
 
   static const _summaryColors = [
     Color(0xFF9ED8FA),
@@ -21,9 +30,9 @@ class HomeScreen extends StatelessWidget {
     final regularSubjects = subjects.where((subject) => !subject.isNoSubject);
     final completedTasks = tasks.where((task) => task.isCompleted).length;
     final pendingTasks = tasks.length - completedTasks;
+    final now = DateTime.now();
     final dueToday = tasks.where((task) {
       if (task.isCompleted) return false;
-      final now = DateTime.now();
       return task.dueDate.year == now.year &&
           task.dueDate.month == now.month &&
           task.dueDate.day == now.day;
@@ -35,6 +44,9 @@ class HomeScreen extends StatelessWidget {
       ('Pending Tasks', pendingTasks, _summaryColors[2]),
       ('Completed Tasks', completedTasks, _summaryColors[3]),
     ];
+    final upcomingTasks = tasks.where((task) => !task.isCompleted).toList()
+      ..sort((a, b) => a.dueDate.compareTo(b.dueDate));
+    final visibleUpcomingTasks = upcomingTasks.take(4).toList();
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -68,6 +80,27 @@ class HomeScreen extends StatelessWidget {
               ),
               if (row == 0) const SizedBox(height: 12),
             ],
+            const SizedBox(height: 32),
+            const Text(
+              'Upcoming Tasks',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
+            const SizedBox(height: 14),
+            if (visibleUpcomingTasks.isEmpty)
+              _buildEmptyTasksState()
+            else
+              for (final task in visibleUpcomingTasks)
+                TaskCard(
+                  task: task,
+                  subject:
+                      subjects
+                          .where((subject) => subject.id == task.subjectId)
+                          .firstOrNull ??
+                      Subject(id: task.subjectId, name: 'Unknown subject'),
+                  onTap: () => onTaskTap(task),
+                  onCompletionChanged: (isCompleted) =>
+                      onCompletionChanged(task, isCompleted),
+                ),
           ],
         ),
       ),
@@ -90,6 +123,25 @@ class HomeScreen extends StatelessWidget {
           textAlign: TextAlign.center,
           style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyTasksState() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F7FE),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFB5CCE8), width: 1.4),
+      ),
+      child: Text(
+        tasks.isEmpty
+            ? 'No tasks yet. Add a task to see it here.'
+            : 'No upcoming tasks. You have completed every task.',
+        textAlign: TextAlign.center,
+        style: TextStyle(color: Colors.grey.shade700, height: 1.4),
       ),
     );
   }
