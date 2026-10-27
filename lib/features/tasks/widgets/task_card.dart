@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/app_theme.dart';
 import '../../../models/subject.dart';
 import '../../../models/task.dart';
 
@@ -16,9 +17,6 @@ class TaskCard extends StatelessWidget {
     required this.onTap,
     required this.onCompletionChanged,
   });
-
-  static const Color _cardColor = Color(0xFFF3F7FE);
-  static const Color _borderColor = Color(0xFFB5CCE8);
 
   Color _urgencyColor(TaskUrgency urgency) {
     switch (urgency) {
@@ -53,13 +51,13 @@ class TaskCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 14),
       elevation: 0,
-      color: _cardColor,
+      color: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: _borderColor, width: 1.4),
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: AppTheme.outline),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         leading: Checkbox(
           value: task.isCompleted,
           onChanged: (value) {
@@ -71,15 +69,15 @@ class TaskCard extends StatelessWidget {
         title: Text(
           task.title,
           style: TextStyle(
-            fontWeight: FontWeight.w500,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.ink,
             decoration: task.isCompleted ? TextDecoration.lineThrough : null,
           ),
         ),
         subtitle: Text(
-          '${subject.name}\n'
-          'Due ${task.dueDate.month}/${task.dueDate.day}/${task.dueDate.year}',
+          '${subject.name} - Due ${task.dueDate.month}/${task.dueDate.day}/${task.dueDate.year}',
+          style: const TextStyle(color: AppTheme.mutedInk, height: 1.45),
         ),
-        isThreeLine: true,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -99,7 +97,11 @@ class TaskCard extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.arrow_forward),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 16,
+              color: AppTheme.mutedInk,
+            ),
           ],
         ),
         onTap: onTap,
