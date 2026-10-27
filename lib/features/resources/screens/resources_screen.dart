@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:studynest/utils/subject_lookup.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../app/app_theme.dart';
 import '../../../data/app_database.dart';
 import '../../../models/subject.dart';
 import '../data/material_file_storage.dart';
@@ -99,13 +100,12 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
     final materials = _filteredMaterials;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.canvas,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildHeader(),
-            const Divider(height: 1, color: Colors.black87),
             _buildResourceTabs(),
             if (_showVideos) ...[
               Expanded(
@@ -156,13 +156,24 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
           const Expanded(
             child: Text(
               'Study Resources',
-              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+                color: AppTheme.ink,
+              ),
             ),
           ),
           IconButton(
             tooltip: 'Add material',
             onPressed: _addMaterial,
-            icon: const Icon(Icons.add, size: 32),
+            style: IconButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ),
+            icon: const Icon(Icons.add, size: 24),
           ),
         ],
       ),
@@ -171,7 +182,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
 
   Widget _buildResourceTabs() {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 4),
       child: Row(
         children: [
           _resourceTab(
@@ -200,11 +211,17 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
         child: OutlinedButton(
           onPressed: onTap,
           style: OutlinedButton.styleFrom(
-            backgroundColor: selected ? const Color(0xFF8EC9F5) : Colors.white,
-            foregroundColor: Colors.black87,
-            side: const BorderSide(color: Colors.black87, width: 1.4),
+            backgroundColor: selected
+                ? Theme.of(context).colorScheme.secondaryContainer
+                : Colors.white,
+            foregroundColor: selected ? AppTheme.primary : AppTheme.mutedInk,
+            side: BorderSide(
+              color: selected
+                  ? Theme.of(context).colorScheme.secondaryContainer
+                  : AppTheme.outline,
+            ),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
             ),
             padding: const EdgeInsets.symmetric(vertical: 14),
           ),
@@ -307,26 +324,33 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      color: const Color(0xFFF3F7FE),
+      color: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Color(0xFFB5CCE8)),
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: AppTheme.outline),
       ),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: Colors.white,
+          backgroundColor: const Color(0xFFE8F0FE),
+          foregroundColor: AppTheme.primary,
           child: Icon(
             material.type == StudyMaterialType.document
                 ? Icons.description_outlined
                 : Icons.link,
           ),
         ),
-        title: Text(material.title),
+        title: Text(
+          material.title,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            color: AppTheme.ink,
+          ),
+        ),
         subtitle: Text(
           '${subjectName ?? 'Unknown subject'}\n'
-          '${_typeLabel(material)} · Added ${_formatDate(material.addedAt)}',
+          '${_typeLabel(material)} - Added ${_formatDate(material.addedAt)}',
+          style: const TextStyle(color: AppTheme.mutedInk, height: 1.4),
         ),
-        isThreeLine: true,
         onTap: () => _showMaterialDetails(material),
       ),
     );

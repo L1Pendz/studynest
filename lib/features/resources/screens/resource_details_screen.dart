@@ -3,6 +3,7 @@ import 'package:open_filex/open_filex.dart';
 import 'package:studynest/utils/subject_lookup.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../../app/app_theme.dart';
 import '../../../data/app_database.dart';
 import '../../../models/subject.dart';
 import '../data/material_file_storage.dart';
@@ -34,22 +35,17 @@ class ResourceDetailsScreen extends StatefulWidget {
 class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
   late StudyMaterial _material = widget.material;
 
-  static const Color _cardColor = Color(0xFFF3F7FE);
-  static const Color _borderColor = Color(0xFFB5CCE8);
-  static const Color _primaryColor = Color(0xFF8EC9F5);
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.canvas,
       body: SafeArea(
         child: Column(
           children: [
             _buildHeader(context),
-            const Divider(height: 1, color: Colors.black87),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 30),
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 30),
                 children: [
                   _buildMaterialCard(),
                   const SizedBox(height: 24),
@@ -97,7 +93,11 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
             child: Center(
               child: Text(
                 'Resource Details',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  color: AppTheme.ink,
+                ),
               ),
             ),
           ),
@@ -111,15 +111,15 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       decoration: BoxDecoration(
-        color: _cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _borderColor, width: 1.4),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppTheme.outline),
       ),
       child: Row(
         children: [
           CircleAvatar(
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black87,
+            backgroundColor: const Color(0xFFE8F0FE),
+            foregroundColor: AppTheme.primary,
             child: Icon(
               _material.type == StudyMaterialType.document
                   ? Icons.description_outlined
@@ -130,7 +130,11 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
           Expanded(
             child: Text(
               _material.title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: AppTheme.ink,
+              ),
             ),
           ),
         ],
@@ -144,10 +148,21 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: const TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.ink,
+          ),
         ),
         const SizedBox(height: 6),
-        Text(value, style: const TextStyle(fontSize: 15, height: 1.4)),
+        Text(
+          value,
+          style: const TextStyle(
+            fontSize: 15,
+            height: 1.4,
+            color: AppTheme.mutedInk,
+          ),
+        ),
       ],
     );
   }
@@ -160,8 +175,8 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
           height: 48,
           child: OutlinedButton.icon(
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.black87,
-              side: const BorderSide(color: Colors.black87, width: 1.2),
+              foregroundColor: AppTheme.primary,
+              side: const BorderSide(color: AppTheme.outline),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -177,10 +192,9 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
           height: 48,
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: _primaryColor,
-              foregroundColor: Colors.black87,
+              backgroundColor: AppTheme.primary,
+              foregroundColor: Colors.white,
               elevation: 0,
-              side: const BorderSide(color: Colors.black87, width: 1.2),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
