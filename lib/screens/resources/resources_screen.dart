@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../data/app_database.dart';
 import '../../data/material_file_storage.dart';
 import '../../models/study_material.dart';
 import '../../models/subject.dart';
+import '../../models/video_search_result.dart';
+import '../../services/youtube_video_search_service.dart';
 import 'add_material_screen.dart';
 import 'resource_details_screen.dart';
 
@@ -24,9 +27,16 @@ class ResourcesScreen extends StatefulWidget {
 
 class _ResourcesScreenState extends State<ResourcesScreen> {
   final _searchController = TextEditingController();
+  final _videoSearchController = TextEditingController();
+  final _videoSearchService = YouTubeVideoSearchService();
   late List<StudyMaterial> _materials = List.of(widget.initialMaterials);
   String _searchQuery = '';
   String? _selectedSubjectId;
+  bool _showVideos = false;
+  String _videoQuery = '';
+  List<VideoSearchResult> _videos = [];
+  bool _isSearchingVideos = false;
+  String? _videoError;
 
   @override
   void didUpdateWidget(covariant ResourcesScreen oldWidget) {
@@ -55,6 +65,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _videoSearchController.dispose();
     super.dispose();
   }
 
@@ -70,20 +81,26 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
           children: [
             _buildHeader(),
             const Divider(height: 1, color: Colors.black87),
-            _buildSearchField(),
-            _buildFilterButton(),
-            Expanded(
-              child: materials.isEmpty
-                  ? _buildEmptyState()
-                  : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-                      itemCount: materials.length,
-                      itemBuilder: (context, index) {
-                        final material = materials[index];
-                        return _buildMaterialCard(material);
-                      },
-                    ),
-            ),
+            _buildResourceTabs(),
+            if (_showVideos) ...[
+              _buildVideoSearchField(),
+              Expanded(child: _buildVideoResults()),
+            ] else ...[
+              _buildSearchField(),
+              _buildFilterButton(),
+              Expanded(
+                child: materials.isEmpty
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+                        itemCount: materials.length,
+                        itemBuilder: (context, index) {
+                          final material = materials[index];
+                          return _buildMaterialCard(material);
+                        },
+                      ),
+              ),
+            ],
           ],
         ),
       ),
@@ -109,6 +126,248 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildResourceTabs() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      child: Row(
+        children: [
+          _resourceTab(
+            'My Materials',
+            selected: !_showVideos,
+            onTap: () => setState(() => _showVideos = false),
+          ),
+          _resourceTab(
+            'Find Videos',
+            selected: _showVideos,
+            onTap: () => setState(() => _showVideos = true),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _resourceTab(
+    String label, {
+    required bool selected,
+    required VoidCallback onTap,
+  }) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.only(right: 6),
+        child: OutlinedButton(
+          onPressed: onTap,
+          style: OutlinedButton.styleFrom(
+            backgroundColor: selected ? const Color(0xFF8EC9F5) : Colors.white,
+            foregroundColor: Colors.black87,
+            side: const BorderSide(color: Colors.black87, width: 1.4),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+          ),
+          child: Text(label),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVideoSearchField() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+      child: TextField(
+        controller: _videoSearchController,
+        textInputAction: TextInputAction.search,
+        onSubmitted: _searchVideos,
+        decoration: InputDecoration(
+          hintText: 'Search YouTube for educational videos...',
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: IconButton(
+            tooltip: 'Search videos',
+            onPressed: () => _searchVideos(_videoSearchController.text),
+            icon: const Icon(Icons.arrow_forward),
+          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.black87, width: 1.5),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVideoResults() {
+    if (_isSearchingVideos) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    if (_videoError != null) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(28),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(_videoError!, textAlign: TextAlign.center),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                onPressed: () => _searchVideos(_videoQuery),
+                icon: const Icon(Icons.refresh),
+                label: const Text('Try again'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    if (_videoQuery.isEmpty || _videos.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.ondemand_video_outlined,
+                size: 48,
+                color: Colors.blueGrey.shade300,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                _videoQuery.isEmpty
+                    ? 'Search for a subject or study topic to find videos.'
+                    : 'No videos found. Try another search.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey.shade700, height: 1.4),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+      itemCount: _videos.length,
+      itemBuilder: (context, index) => _buildVideoCard(_videos[index]),
+    );
+  }
+
+  Widget _buildVideoCard(VideoSearchResult video) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      color: const Color(0xFFF3F7FE),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: const BorderSide(color: Color(0xFFB5CCE8)),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => _openVideo(video),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Row(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: SizedBox(
+                  width: 112,
+                  height: 76,
+                  child: video.thumbnailUrl.isEmpty
+                      ? const ColoredBox(
+                          color: Color(0xFFE4EBF4),
+                          child: Icon(Icons.ondemand_video_outlined),
+                        )
+                      : Image.network(
+                          video.thumbnailUrl,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stack) =>
+                              const ColoredBox(
+                                color: Color(0xFFE4EBF4),
+                                child: Icon(Icons.broken_image_outlined),
+                              ),
+                        ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      video.title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 5),
+                    Text(
+                      video.channelTitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.grey.shade700),
+                    ),
+                    if (video.publishedAt != null)
+                      Text(
+                        'Published ${_formatDate(video.publishedAt!)}',
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 12,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              IconButton(
+                tooltip: _isVideoSaved(video)
+                    ? 'Saved to My Materials'
+                    : 'Save to My Materials',
+                onPressed: () => _saveVideo(video),
+                icon: Icon(
+                  _isVideoSaved(video)
+                      ? Icons.bookmark
+                      : Icons.bookmark_add_outlined,
+                  color: _isVideoSaved(video) ? Colors.indigo : Colors.black87,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _searchVideos(String value) async {
+    final query = value.trim();
+    if (query.isEmpty || _isSearchingVideos) return;
+    setState(() {
+      _videoQuery = query;
+      _isSearchingVideos = true;
+      _videoError = null;
+      _videos = [];
+    });
+    try {
+      final videos = await _videoSearchService.search(query);
+      if (!mounted) return;
+      setState(() => _videos = videos);
+    } catch (error) {
+      if (!mounted) return;
+      setState(() => _videoError = error.toString());
+    } finally {
+      if (mounted) setState(() => _isSearchingVideos = false);
+    }
+  }
+
+  Future<void> _openVideo(VideoSearchResult video) async {
+    try {
+      final opened = await launchUrl(
+        video.watchUrl,
+        mode: LaunchMode.externalApplication,
+      );
+      if (!opened) throw StateError('Could not open video');
+    } catch (_) {
+      _showMessage('Could not open this video.');
+    }
   }
 
   Widget _buildSearchField() {
@@ -265,6 +524,40 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
 
     if (!mounted || selection == null) return;
     setState(() => _selectedSubjectId = selection['subjectId']);
+  }
+
+  bool _isVideoSaved(VideoSearchResult video) {
+    return _materials.any(
+      (material) =>
+          material.type == StudyMaterialType.link &&
+          material.resourceLocation == video.watchUrl.toString(),
+    );
+  }
+
+  Future<void> _saveVideo(VideoSearchResult video) async {
+    if (_isVideoSaved(video)) {
+      _showMessage('This video is already in My Materials.');
+      return;
+    }
+
+    final material = StudyMaterial(
+      id: DateTime.now().microsecondsSinceEpoch.toString(),
+      title: video.title,
+      subjectId: Subject.noSubjectId,
+      description: 'YouTube video by ${video.channelTitle}',
+      type: StudyMaterialType.link,
+      resourceLocation: video.watchUrl.toString(),
+      addedAt: DateTime.now(),
+    );
+
+    try {
+      await widget.database.saveMaterial(material);
+      if (!mounted) return;
+      setState(() => _materials.add(material));
+      _showMessage('Saved to My Materials.');
+    } catch (_) {
+      _showMessage('Could not save this video. Try again.');
+    }
   }
 
   Widget _buildMaterialCard(StudyMaterial material) {
