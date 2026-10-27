@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/app_theme.dart';
 import '../../../models/subject.dart';
 import '../widgets/edit_subject_dialog.dart';
 
@@ -31,9 +32,6 @@ class SubjectDetailsScreen extends StatefulWidget {
 
 class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
   late Subject _subject;
-
-  static const _cardColor = Color(0xFFF3F7FE);
-  static const _borderColor = Color(0xFFB5CCE8);
 
   @override
   void initState() {
@@ -98,12 +96,11 @@ class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.canvas,
       body: SafeArea(
         child: Column(
           children: [
             _buildHeader(),
-            const Divider(height: 1, color: Colors.black87),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
@@ -112,19 +109,19 @@ class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
                   const SizedBox(height: 24),
                   const Text(
                     'Information',
-                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
+                    style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: AppTheme.ink),
                   ),
                   const SizedBox(height: 20),
                   const Text(
                     'Description',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppTheme.ink),
                   ),
                   const SizedBox(height: 6),
                   Text(
                     _subject.description.trim().isEmpty
                         ? 'No description provided.'
                         : _subject.description,
-                    style: const TextStyle(fontSize: 15, height: 1.45),
+                    style: const TextStyle(fontSize: 15, height: 1.45, color: AppTheme.mutedInk),
                   ),
                   const SizedBox(height: 24),
                   _buildDestination(
@@ -168,7 +165,7 @@ class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
             child: Center(
               child: Text(
                 'Subject Details',
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, color: AppTheme.ink),
               ),
             ),
           ),
@@ -192,22 +189,22 @@ class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
       decoration: BoxDecoration(
-        color: _cardColor,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: _borderColor, width: 1.4),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppTheme.outline),
       ),
       child: Row(
         children: [
           const CircleAvatar(
-            backgroundColor: Colors.white,
-            foregroundColor: Colors.black87,
+            backgroundColor: const Color(0xFFE8F0FE),
+            foregroundColor: AppTheme.primary,
             child: Icon(Icons.menu_book_outlined),
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               _subject.name,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppTheme.ink),
             ),
           ),
         ],
@@ -222,21 +219,21 @@ class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
     required VoidCallback onTap,
   }) {
     return Material(
-      color: _cardColor,
+      color: Colors.white,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: _borderColor, width: 1.4),
+        borderRadius: BorderRadius.circular(18),
+        side: const BorderSide(color: AppTheme.outline),
       ),
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
           child: Row(
             children: [
               CircleAvatar(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black87,
+                backgroundColor: const Color(0xFFE8F0FE),
+                foregroundColor: AppTheme.primary,
                 child: Icon(icon),
               ),
               const SizedBox(width: 12),
@@ -244,13 +241,13 @@ class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(title, style: const TextStyle(fontSize: 15)),
+                    Text(title, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.ink)),
                     if (subtitle != null)
-                      Text(subtitle, style: const TextStyle(fontSize: 13)),
+                      Text(subtitle, style: const TextStyle(fontSize: 13, color: AppTheme.mutedInk)),
                   ],
                 ),
               ),
-              const Icon(Icons.arrow_forward, size: 24),
+              const Icon(Icons.arrow_forward_ios_rounded, size: 16, color: AppTheme.mutedInk),
             ],
           ),
         ),

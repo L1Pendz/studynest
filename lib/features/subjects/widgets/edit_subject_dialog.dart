@@ -66,7 +66,6 @@ class _EditSubjectDialogState extends State<EditSubjectDialog> {
                 textCapitalization: TextCapitalization.words,
                 decoration: const InputDecoration(
                   labelText: 'Subject name',
-                  border: OutlineInputBorder(),
                 ),
                 validator: (value) => validateSubjectName(
                   value,
@@ -82,7 +81,6 @@ class _EditSubjectDialogState extends State<EditSubjectDialog> {
                 maxLines: 3,
                 decoration: const InputDecoration(
                   labelText: 'Description (optional)',
-                  border: OutlineInputBorder(),
                   alignLabelWithHint: true,
                 ),
               ),
