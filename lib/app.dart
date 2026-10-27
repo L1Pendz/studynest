@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'data/app_database.dart';
-import 'data/material_file_storage.dart';
+import 'features/resources/data/material_file_storage.dart';
 import 'models/study_material.dart';
 import 'models/subject.dart';
 import 'models/task.dart';

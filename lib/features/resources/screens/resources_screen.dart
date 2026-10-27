@@ -3,7 +3,7 @@ import 'package:studynest/utils/subject_ordering.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/app_database.dart';
-import '../../../data/material_file_storage.dart';
+import '../data/material_file_storage.dart';
 import '../../../models/study_material.dart';
 import '../../../models/subject.dart';
 import '../../../models/video_search_result.dart';
