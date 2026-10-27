@@ -2,17 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../data/app_database.dart';
+import '../../data/material_file_storage.dart';
 import '../../models/study_material.dart';
+import '../../models/subject.dart';
+import 'resource_form_screen.dart';
 
-class ResourceDetailsScreen extends StatelessWidget {
+class ResourceDetailsScreen extends StatefulWidget {
   final StudyMaterial material;
   final String subjectName;
+  final List<Subject> subjects;
+  final AppDatabase database;
+  final ValueChanged<StudyMaterial> onMaterialUpdated;
+  final Future<void> Function() onDelete;
 
   const ResourceDetailsScreen({
     super.key,
     required this.material,
     required this.subjectName,
+    required this.subjects,
+    required this.database,
+    required this.onMaterialUpdated,
+    required this.onDelete,
   });
+
+  @override
+  State<ResourceDetailsScreen> createState() => _ResourceDetailsScreenState();
+}
+
+class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
+  late StudyMaterial _material = widget.material;
 
   static const Color _cardColor = Color(0xFFF3F7FE);
   static const Color _borderColor = Color(0xFFB5CCE8);
@@ -33,19 +52,19 @@ class ResourceDetailsScreen extends StatelessWidget {
                 children: [
                   _buildMaterialCard(),
                   const SizedBox(height: 24),
-                  _buildDetail(label: 'Subject', value: subjectName),
+                  _buildDetail(label: 'Subject', value: _subjectName),
                   const SizedBox(height: 20),
                   _buildDetail(label: 'Type', value: _typeLabel),
                   const SizedBox(height: 20),
                   _buildDetail(
                     label: 'Date Added',
-                    value: _formatDate(material.addedAt),
+                    value: _formatDate(_material.addedAt),
                   ),
-                  if (material.description.trim().isNotEmpty) ...[
+                  if (_material.description.trim().isNotEmpty) ...[
                     const SizedBox(height: 20),
                     _buildDetail(
                       label: 'Description',
-                      value: material.description,
+                      value: _material.description,
                     ),
                   ],
                   const SizedBox(height: 30),
@@ -59,9 +78,16 @@ class ResourceDetailsScreen extends StatelessWidget {
     );
   }
 
+  String get _subjectName =>
+      widget.subjects
+          .where((subject) => subject.id == _material.subjectId)
+          .map((subject) => subject.name)
+          .firstOrNull ??
+      widget.subjectName;
+
   Widget _buildHeader(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 20, 8),
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
       child: Row(
         children: [
           IconButton(
@@ -97,7 +123,7 @@ class ResourceDetailsScreen extends StatelessWidget {
             backgroundColor: Colors.white,
             foregroundColor: Colors.black87,
             child: Icon(
-              material.type == StudyMaterialType.document
+              _material.type == StudyMaterialType.document
                   ? Icons.description_outlined
                   : Icons.link,
             ),
@@ -105,7 +131,7 @@ class ResourceDetailsScreen extends StatelessWidget {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              material.title,
+              _material.title,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
             ),
           ),
@@ -129,31 +155,71 @@ class ResourceDetailsScreen extends StatelessWidget {
   }
 
   Widget _buildActions(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 48,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: _primaryColor,
-          foregroundColor: Colors.black87,
-          elevation: 0,
-          side: const BorderSide(color: Colors.black87, width: 1.2),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+    return Column(
+      children: [
+        SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: OutlinedButton.icon(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.black87,
+              side: const BorderSide(color: Colors.black87, width: 1.2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () => _openMaterial(context),
+            icon: const Icon(Icons.open_in_new),
+            label: const Text('Open Resource'),
           ),
         ),
-        onPressed: () => _openMaterial(context),
-        child: const Text(
-          'Open Resource',
-          style: TextStyle(fontWeight: FontWeight.w500),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: _primaryColor,
+              foregroundColor: Colors.black87,
+              elevation: 0,
+              side: const BorderSide(color: Colors.black87, width: 1.2),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: _editResource,
+            child: const Text(
+              'Edit Resource',
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
         ),
-      ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          height: 48,
+          child: OutlinedButton(
+            style: OutlinedButton.styleFrom(
+              foregroundColor: Colors.red,
+              side: const BorderSide(color: Colors.red, width: 1.5),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () => _confirmDelete(context),
+            child: const Text(
+              'Delete Resource',
+              style: TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
   String get _typeLabel {
-    if (material.type == StudyMaterialType.link) return 'Resource link';
-    final fileName = material.fileName;
+    if (_material.type == StudyMaterialType.link) return 'Resource link';
+    final fileName = _material.fileName;
     final extension = fileName != null && fileName.contains('.')
         ? fileName.split('.').last.toUpperCase()
         : 'Document';
@@ -164,14 +230,14 @@ class ResourceDetailsScreen extends StatelessWidget {
 
   Future<void> _openMaterial(BuildContext context) async {
     try {
-      if (material.type == StudyMaterialType.link) {
+      if (_material.type == StudyMaterialType.link) {
         final launched = await launchUrl(
-          Uri.parse(material.resourceLocation),
+          Uri.parse(_material.resourceLocation),
           mode: LaunchMode.externalApplication,
         );
         if (!launched) throw StateError('Could not open link.');
       } else {
-        final result = await OpenFilex.open(material.resourceLocation);
+        final result = await OpenFilex.open(_material.resourceLocation);
         if (result.type != ResultType.done) {
           throw StateError(result.message);
         }
@@ -180,6 +246,80 @@ class ResourceDetailsScreen extends StatelessWidget {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Could not open this material.')),
+      );
+    }
+  }
+
+  Future<void> _confirmDelete(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Resource?'),
+        content: Text('Delete "${_material.title}"? This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (!context.mounted || confirmed != true) return;
+    try {
+      await widget.onDelete();
+      if (context.mounted) Navigator.pop(context);
+    } catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not delete this resource.')),
+      );
+    }
+  }
+
+  Future<void> _editResource() async {
+    final updated = await Navigator.push<StudyMaterial>(
+      context,
+      MaterialPageRoute<StudyMaterial>(
+        builder: (_) => ResourceFormScreen(
+          subjects: widget.subjects,
+          initialMaterial: _material,
+        ),
+      ),
+    );
+    if (!mounted || updated == null) return;
+
+    try {
+      await widget.database.saveMaterial(updated);
+      if (_material.type == StudyMaterialType.document &&
+          updated.resourceLocation != _material.resourceLocation) {
+        try {
+          await deleteStoredMaterial(_material.resourceLocation);
+        } catch (_) {
+          // Keep the saved update even if cleanup of the replaced file fails.
+        }
+      }
+      if (!mounted) return;
+      setState(() => _material = updated);
+      widget.onMaterialUpdated(updated);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Resource updated.')));
+    } catch (_) {
+      if (updated.type == StudyMaterialType.document &&
+          updated.resourceLocation != _material.resourceLocation) {
+        try {
+          await deleteStoredMaterial(updated.resourceLocation);
+        } catch (_) {
+          // Cleanup failure should not hide the database update error.
+        }
+      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Could not update this resource.')),
       );
     }
   }
