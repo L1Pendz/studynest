@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:studynest/utils/subject_ordering.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../../../data/app_database.dart';
 import '../../../data/material_file_storage.dart';
 import '../../../models/study_material.dart';
@@ -453,10 +455,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
   }
 
   Future<void> _showFilterSheet() async {
-    final subjectsInPickerOrder = [
-      ...widget.subjects.where((subject) => subject.isNoSubject),
-      ...widget.subjects.where((subject) => !subject.isNoSubject),
-    ];
+    final subjectsInPickerOrder = orderSubjectsForPicker(widget.subjects);
 
     final selection = await showModalBottomSheet<Map<String, String?>>(
       context: context,

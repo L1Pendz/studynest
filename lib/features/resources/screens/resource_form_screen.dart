@@ -1,5 +1,6 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:studynest/utils/subject_ordering.dart';
 
 import '../../../data/material_file_storage.dart';
 import '../../../models/study_material.dart';
@@ -53,10 +54,7 @@ class _ResourceFormScreenState extends State<ResourceFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final subjectsInPickerOrder = [
-      ...widget.subjects.where((subject) => subject.isNoSubject),
-      ...widget.subjects.where((subject) => !subject.isNoSubject),
-    ];
+    final subjectsInPickerOrder = orderSubjectsForPicker(widget.subjects);
 
     return Scaffold(
       backgroundColor: Colors.white,
