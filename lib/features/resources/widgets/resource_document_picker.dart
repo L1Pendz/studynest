@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/app_theme.dart';
+
 class ResourceDocumentPicker extends StatelessWidget {
   final String? fileName;
   final bool isEditing;
@@ -12,8 +14,6 @@ class ResourceDocumentPicker extends StatelessWidget {
     required this.onTap,
   });
 
-  static const Color _borderColor = Color(0xFF1F1F1F);
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -21,26 +21,28 @@ class ResourceDocumentPicker extends StatelessWidget {
       children: [
         const Text(
           'Document',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppTheme.ink),
         ),
         const SizedBox(height: 7),
         InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           onTap: onTap,
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              border: Border.all(color: _borderColor, width: 1.5),
-              borderRadius: BorderRadius.circular(12),
+              color: Colors.white,
+              border: Border.all(color: AppTheme.outline),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Row(
               children: [
-                const Icon(Icons.add),
+                const Icon(Icons.add, color: AppTheme.primary),
                 const SizedBox(width: 10),
                 Expanded(child: Text(fileName ?? 'Select a document...')),
                 Icon(
                   isEditing ? Icons.edit_outlined : Icons.keyboard_arrow_down,
+                  color: AppTheme.mutedInk,
                 ),
               ],
             ),
