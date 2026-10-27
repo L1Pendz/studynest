@@ -24,9 +24,12 @@ class ResourcesScreen extends StatefulWidget {
 
 class _ResourcesScreenState extends State<ResourcesScreen> {
   final _searchController = TextEditingController();
+  final _videoSearchController = TextEditingController();
   late List<StudyMaterial> _materials = List.of(widget.initialMaterials);
   String _searchQuery = '';
   String? _selectedSubjectId;
+  bool _showVideos = false;
+  String _videoQuery = '';
 
   @override
   void didUpdateWidget(covariant ResourcesScreen oldWidget) {
@@ -55,6 +58,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
   @override
   void dispose() {
     _searchController.dispose();
+    _videoSearchController.dispose();
     super.dispose();
   }
 
@@ -70,20 +74,26 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
           children: [
             _buildHeader(),
             const Divider(height: 1, color: Colors.black87),
-            _buildSearchField(),
-            _buildFilterButton(),
-            Expanded(
-              child: materials.isEmpty
-                  ? _buildEmptyState()
-                  : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-                      itemCount: materials.length,
-                      itemBuilder: (context, index) {
-                        final material = materials[index];
-                        return _buildMaterialCard(material);
-                      },
-                    ),
-            ),
+            _buildResourceTabs(),
+            if (_showVideos) ...[
+              _buildVideoSearchField(),
+              Expanded(child: _buildVideoPlaceholder()),
+            ] else ...[
+              _buildSearchField(),
+              _buildFilterButton(),
+              Expanded(
+                child: materials.isEmpty
+                    ? _buildEmptyState()
+                    : ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+                        itemCount: materials.length,
+                        itemBuilder: (context, index) {
+                          final material = materials[index];
+                          return _buildMaterialCard(material);
+                        },
+                      ),
+              ),
+            ],
           ],
         ),
       ),
@@ -107,6 +117,88 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
             icon: const Icon(Icons.add, size: 32),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildResourceTabs() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      child: Row(
+        children: [
+          _resourceTab('My Materials', selected: !_showVideos, onTap: () {
+            setState(() => _showVideos = false);
+          }),
+          _resourceTab('Find Videos', selected: _showVideos, onTap: () {
+            setState(() => _showVideos = true);
+          }),
+        ],
+      ),
+    );
+  }
+
+  Widget _resourceTab(String label, {required bool selected, required VoidCallback onTap}) {
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.only(right: 6),
+        child: OutlinedButton(
+          onPressed: onTap,
+          style: OutlinedButton.styleFrom(
+            backgroundColor: selected ? const Color(0xFF8EC9F5) : Colors.white,
+            foregroundColor: Colors.black87,
+            side: const BorderSide(color: Colors.black87, width: 1.4),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            padding: const EdgeInsets.symmetric(vertical: 14),
+          ),
+          child: Text(label),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVideoSearchField() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+      child: TextField(
+        controller: _videoSearchController,
+        textInputAction: TextInputAction.search,
+        onSubmitted: (value) => setState(() => _videoQuery = value.trim()),
+        decoration: InputDecoration(
+          hintText: 'Search YouTube for educational videos...',
+          prefixIcon: const Icon(Icons.search),
+          suffixIcon: IconButton(
+            tooltip: 'Search videos',
+            onPressed: () => setState(() => _videoQuery = _videoSearchController.text.trim()),
+            icon: const Icon(Icons.arrow_forward),
+          ),
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.black87, width: 1.5),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVideoPlaceholder() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.ondemand_video_outlined, size: 48, color: Colors.blueGrey.shade300),
+            const SizedBox(height: 12),
+            Text(
+              _videoQuery.isEmpty
+                  ? 'Search for a subject or study topic to find videos.'
+                  : 'Video search will be available once YouTube access is configured.',
+              textAlign: TextAlign.center,
+              style: TextStyle(color: Colors.grey.shade700, height: 1.4),
+            ),
+          ],
+        ),
       ),
     );
   }
