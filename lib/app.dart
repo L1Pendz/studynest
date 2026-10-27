@@ -6,7 +6,7 @@ import 'models/study_material.dart';
 import 'models/subject.dart';
 import 'models/task.dart';
 import 'screens/home/home_screen.dart';
-import 'screens/subjects/subjects_screen.dart';
+import 'features/subjects/screens/subjects_screen.dart';
 import 'features/tasks/screens/tasks_screen.dart';
 import 'features/tasks/screens/task_details_screen.dart';
 import 'features/resources/screens/resources_screen.dart';

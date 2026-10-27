@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../models/subject.dart';
+import '../../../models/subject.dart';
 
 class EditSubjectDialog extends StatefulWidget {
   final Subject subject;
