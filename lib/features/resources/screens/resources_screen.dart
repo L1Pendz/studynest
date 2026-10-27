@@ -7,7 +7,7 @@ import '../../../data/material_file_storage.dart';
 import '../../../models/study_material.dart';
 import '../../../models/subject.dart';
 import '../../../models/video_search_result.dart';
-import '../../../services/youtube_video_search_service.dart';
+import '../services/youtube_video_search_service.dart';
 import 'resource_form_screen.dart';
 import 'resource_details_screen.dart';
 

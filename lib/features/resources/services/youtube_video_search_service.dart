@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-import '../models/video_search_result.dart';
+import '../../../models/video_search_result.dart';
 
 class YouTubeVideoSearchException implements Exception {
   final String message;
