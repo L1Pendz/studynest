@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../models/subject.dart';
-import '../../models/task.dart';
-import '../../features/tasks/widgets/task_card.dart';
+import '../../../models/subject.dart';
+import '../../../models/task.dart';
+import '../../tasks/widgets/task_card.dart';
 
 class HomeScreen extends StatelessWidget {
   final List<Subject> subjects;
