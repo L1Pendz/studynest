@@ -1,9 +1,11 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:studynest/utils/subject_ordering.dart';
 
-import '../../data/material_file_storage.dart';
-import '../../models/study_material.dart';
-import '../../models/subject.dart';
+import '../../../models/subject.dart';
+import '../data/material_file_storage.dart';
+import '../models/study_material.dart';
+import '../widgets/resource_document_picker.dart';
 
 class ResourceFormScreen extends StatefulWidget {
   final List<Subject> subjects;
@@ -53,10 +55,7 @@ class _ResourceFormScreenState extends State<ResourceFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final subjectsInPickerOrder = [
-      ...widget.subjects.where((subject) => subject.isNoSubject),
-      ...widget.subjects.where((subject) => !subject.isNoSubject),
-    ];
+    final subjectsInPickerOrder = orderSubjectsForPicker(widget.subjects);
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -90,42 +89,11 @@ class _ResourceFormScreenState extends State<ResourceFormScreen> {
             _buildTypeControl(),
             const SizedBox(height: 20),
             if (_type == StudyMaterialType.document) ...[
-              _buildFieldLabel('Document'),
-              const SizedBox(height: 7),
-              InkWell(
-                borderRadius: BorderRadius.circular(12),
+              ResourceDocumentPicker(
+                fileName: _pickedFile?.name ?? widget.initialMaterial?.fileName,
+                isEditing: _isEditing,
                 onTap: _pickDocument,
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 14,
-                  ),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: _borderColor, width: 1.5),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.add),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          _pickedFile?.name ??
-                              widget.initialMaterial?.fileName ??
-                              'Select a document...',
-                        ),
-                      ),
-                      Icon(
-                        _isEditing
-                            ? Icons.edit_outlined
-                            : Icons.keyboard_arrow_down,
-                      ),
-                    ],
-                  ),
-                ),
               ),
-              const SizedBox(height: 18),
             ] else ...[
               _buildFieldLabel('Resource Link'),
               const SizedBox(height: 7),

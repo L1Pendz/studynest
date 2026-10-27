@@ -1,9 +1,4 @@
-enum TaskUrgency {
-  low,
-  medium,
-  high,
-  critical,
-}
+enum TaskUrgency { low, medium, high, critical }
 
 class Task {
   final String id;

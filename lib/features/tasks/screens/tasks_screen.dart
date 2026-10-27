@@ -1,13 +1,15 @@
-import 'package:flutter/material.dart';
-import 'package:studynest/screens/tasks/task_form_screen.dart';
-
-import '../../data/app_database.dart';
-import '../../models/subject.dart';
-import '../../models/task.dart';
-import '../../widgets/tasks/task_card.dart';
-import '../../widgets/tasks/task_filter_button.dart';
-import 'task_details_screen.dart';
 import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:studynest/features/tasks/screens/task_form_screen.dart';
+import 'package:studynest/utils/subject_lookup.dart';
+
+import '../../../data/app_database.dart';
+import '../../../models/subject.dart';
+import '../../../models/task.dart';
+import '../widgets/task_card.dart';
+import '../widgets/task_filter_button.dart';
+import 'task_details_screen.dart';
 
 class TasksScreen extends StatefulWidget {
   final AppDatabase database;
@@ -249,13 +251,7 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   Subject? _getSubjectForTask(Task task) {
-    for (final subject in _subjects) {
-      if (subject.id == task.subjectId) {
-        return subject;
-      }
-    }
-
-    return null;
+    return findSubjectById(_subjects, task.subjectId);
   }
 
   Future<void> _showAddTask() async {

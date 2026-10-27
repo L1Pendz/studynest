@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:studynest/utils/subject_ordering.dart';
 
-import '../../models/subject.dart';
-import '../../models/task.dart';
+import '../../../models/subject.dart';
+import '../../../models/task.dart';
 
 class TaskFilterSelection {
   const TaskFilterSelection({
@@ -156,10 +157,7 @@ class _TaskFilterSheetContentState extends State<_TaskFilterSheetContent> {
   }
 
   Widget _buildSubjectFilter() {
-    final subjectsInPickerOrder = [
-      ...widget.subjects.where((subject) => subject.isNoSubject),
-      ...widget.subjects.where((subject) => !subject.isNoSubject),
-    ];
+    final subjectsInPickerOrder = orderSubjectsForPicker(widget.subjects);
 
     return DropdownButtonFormField<String?>(
       initialValue: _subjectId,

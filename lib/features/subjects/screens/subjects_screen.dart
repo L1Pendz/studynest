@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../data/app_database.dart';
-import '../../models/subject.dart';
-import '../../widgets/subjects/add_subject_dialog.dart';
-import '../../widgets/subjects/subject_card.dart';
+import '../../../data/app_database.dart';
+import '../../../models/subject.dart';
+import '../widgets/add_subject_dialog.dart';
+import '../widgets/subject_card.dart';
 import 'subject_details_screen.dart';
 
 class SubjectsScreen extends StatefulWidget {

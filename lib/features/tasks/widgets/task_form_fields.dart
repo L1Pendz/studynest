@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:studynest/utils/subject_ordering.dart';
 
-import '../../models/subject.dart';
+import '../../../models/subject.dart';
 
 const Color _borderColor = Color(0xFF1F1F1F);
 
@@ -67,10 +68,7 @@ class TaskSubjectDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final subjectsInPickerOrder = [
-      ...subjects.where((subject) => subject.isNoSubject),
-      ...subjects.where((subject) => !subject.isNoSubject),
-    ];
+    final subjectsInPickerOrder = orderSubjectsForPicker(subjects);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

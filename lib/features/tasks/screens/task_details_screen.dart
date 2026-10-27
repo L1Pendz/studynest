@@ -1,8 +1,10 @@
 import 'dart:async';
-import 'package:flutter/material.dart';
 
-import '../../models/subject.dart';
-import '../../models/task.dart';
+import 'package:flutter/material.dart';
+import 'package:studynest/utils/subject_lookup.dart';
+
+import '../../../models/subject.dart';
+import '../../../models/task.dart';
 import 'task_form_screen.dart';
 
 class TaskDetailsScreen extends StatefulWidget {
@@ -48,12 +50,7 @@ class _TaskDetailsScreenState extends State<TaskDetailsScreen> {
   }
 
   Subject? get _subject {
-    for (final subject in widget.subjects) {
-      if (subject.id == widget.task.subjectId) {
-        return subject;
-      }
-    }
-    return null;
+    return findSubjectById(widget.subjects, widget.task.subjectId);
   }
 
   @override

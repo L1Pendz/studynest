@@ -1,7 +1,7 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
-import '../models/study_material.dart';
+import '../features/resources/models/study_material.dart';
 import '../models/subject.dart' as model;
 import '../models/task.dart' as model;
 

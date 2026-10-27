@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
+import 'package:studynest/utils/subject_lookup.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../data/app_database.dart';
-import '../../data/material_file_storage.dart';
-import '../../models/study_material.dart';
-import '../../models/subject.dart';
+import '../../../data/app_database.dart';
+import '../../../models/subject.dart';
+import '../data/material_file_storage.dart';
+import '../models/study_material.dart';
 import 'resource_form_screen.dart';
 
 class ResourceDetailsScreen extends StatefulWidget {
@@ -79,10 +80,7 @@ class _ResourceDetailsScreenState extends State<ResourceDetailsScreen> {
   }
 
   String get _subjectName =>
-      widget.subjects
-          .where((subject) => subject.id == _material.subjectId)
-          .map((subject) => subject.name)
-          .firstOrNull ??
+      findSubjectById(widget.subjects, _material.subjectId)?.name ??
       widget.subjectName;
 
   Widget _buildHeader(BuildContext context) {
