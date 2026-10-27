@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'app/saved_data_error_screen.dart';
+import 'app/app_theme.dart';
 import 'data/app_database.dart';
 import 'features/resources/data/material_file_storage.dart';
 import 'features/resources/models/study_material.dart';
@@ -119,10 +120,7 @@ class _StudyNestAppState extends State<StudyNestApp> {
     return MaterialApp(
       title: 'StudyNest',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light,
       home:
           FutureBuilder<
             ({
