@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 
-import '../../models/subject.dart';
-import '../../models/task.dart';
+import '../../../models/subject.dart';
+import '../../../models/task.dart';
 import 'task_form_screen.dart';
 
 class TaskDetailsScreen extends StatefulWidget {

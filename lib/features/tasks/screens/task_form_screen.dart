@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../../models/subject.dart';
-import '../../models/task.dart';
-import '../../widgets/tasks/task_form_fields.dart';
-import '../../widgets/tasks/task_threshold_section.dart';
+import '../../../models/subject.dart';
+import '../../../models/task.dart';
+import '../widgets/task_form_fields.dart';
+import '../widgets/task_threshold_section.dart';
 
 class TaskFormScreen extends StatefulWidget {
   final Task? task;

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:studynest/screens/tasks/task_form_screen.dart';
+import 'package:studynest/features/tasks/screens/task_form_screen.dart';
 
-import '../../data/app_database.dart';
-import '../../models/subject.dart';
-import '../../models/task.dart';
-import '../../widgets/tasks/task_card.dart';
-import '../../widgets/tasks/task_filter_button.dart';
+import '../../../data/app_database.dart';
+import '../../../models/subject.dart';
+import '../../../models/task.dart';
+import '../widgets/task_card.dart';
+import '../widgets/task_filter_button.dart';
 import 'task_details_screen.dart';
 import 'dart:async';
 

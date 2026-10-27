@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../models/subject.dart';
+import '../../../models/subject.dart';
 
 const Color _borderColor = Color(0xFF1F1F1F);
 
