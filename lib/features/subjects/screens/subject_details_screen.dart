@@ -196,7 +196,7 @@ class _SubjectDetailsScreenState extends State<SubjectDetailsScreen> {
       child: Row(
         children: [
           const CircleAvatar(
-            backgroundColor: const Color(0xFFE8F0FE),
+            backgroundColor: Color(0xFFE8F0FE),
             foregroundColor: AppTheme.primary,
             child: Icon(Icons.menu_book_outlined),
           ),
