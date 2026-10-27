@@ -51,58 +51,83 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'StudyNest',
-              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
-            ),
-            const Divider(height: 28, color: Colors.black87),
-            const Text(
-              'Welcome, Student!',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.w600),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'You are studying ${regularSubjects.length} '
-              '${regularSubjects.length == 1 ? 'subject' : 'subjects'}.',
-              style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
-            ),
-            const SizedBox(height: 20),
-            for (var row = 0; row < 2; row++) ...[
-              Row(
+            _buildHeader(),
+            const Divider(height: 1, color: Colors.black87),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
                 children: [
-                  Expanded(child: _summaryCard(summaries[row * 2])),
-                  const SizedBox(width: 12),
-                  Expanded(child: _summaryCard(summaries[row * 2 + 1])),
+                  const Text(
+                    'Welcome, Student!',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'You are studying ${regularSubjects.length} '
+                    '${regularSubjects.length == 1 ? 'subject' : 'subjects'}.',
+                    style: TextStyle(fontSize: 15, color: Colors.grey.shade700),
+                  ),
+                  const SizedBox(height: 20),
+                  for (var row = 0; row < 2; row++) ...[
+                    Row(
+                      children: [
+                        Expanded(child: _summaryCard(summaries[row * 2])),
+                        const SizedBox(width: 12),
+                        Expanded(child: _summaryCard(summaries[row * 2 + 1])),
+                      ],
+                    ),
+                    if (row == 0) const SizedBox(height: 12),
+                  ],
+                  const SizedBox(height: 32),
+                  const Text(
+                    'Upcoming Tasks',
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                  ),
+                  const SizedBox(height: 14),
+                  if (visibleUpcomingTasks.isEmpty)
+                    _buildEmptyTasksState()
+                  else
+                    for (final task in visibleUpcomingTasks)
+                      TaskCard(
+                        task: task,
+                        subject:
+                            subjects
+                                .where(
+                                  (subject) => subject.id == task.subjectId,
+                                )
+                                .firstOrNull ??
+                            Subject(
+                              id: task.subjectId,
+                              name: 'Unknown subject',
+                            ),
+                        onTap: () => onTaskTap(task),
+                        onCompletionChanged: (isCompleted) =>
+                            onCompletionChanged(task, isCompleted),
+                      ),
                 ],
               ),
-              if (row == 0) const SizedBox(height: 12),
-            ],
-            const SizedBox(height: 32),
-            const Text(
-              'Upcoming Tasks',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 14),
-            if (visibleUpcomingTasks.isEmpty)
-              _buildEmptyTasksState()
-            else
-              for (final task in visibleUpcomingTasks)
-                TaskCard(
-                  task: task,
-                  subject:
-                      subjects
-                          .where((subject) => subject.id == task.subjectId)
-                          .firstOrNull ??
-                      Subject(id: task.subjectId, name: 'Unknown subject'),
-                  onTap: () => onTaskTap(task),
-                  onCompletionChanged: (isCompleted) =>
-                      onCompletionChanged(task, isCompleted),
-                ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 16, 12),
+      child: Row(
+        children: const [
+          Expanded(
+            child: Text(
+              'Home',
+              style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
       ),
     );
   }
