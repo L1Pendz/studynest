@@ -289,7 +289,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     final screens = [
-      const HomeScreen(),
+      HomeScreen(subjects: _subjects, tasks: _tasks),
       SubjectsScreen(
         database: widget.database,
         initialSubjects: _subjects,
