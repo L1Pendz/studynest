@@ -145,8 +145,21 @@ class _StudyNestAppState extends State<StudyNestApp> {
               }
 
               if (!snapshot.hasData) {
-                return const Scaffold(
-                  body: Center(child: CircularProgressIndicator()),
+                return Scaffold(
+                  backgroundColor: AppTheme.canvas,
+                  body: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const CircularProgressIndicator(),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Getting your study space ready...',
+                          style: TextStyle(color: AppTheme.mutedInk),
+                        ),
+                      ],
+                    ),
+                  ),
                 );
               }
 

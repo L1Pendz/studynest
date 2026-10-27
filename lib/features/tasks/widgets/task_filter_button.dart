@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:studynest/utils/subject_ordering.dart';
 
+import '../../../app/app_theme.dart';
 import '../../../models/subject.dart';
 import '../../../models/task.dart';
 
@@ -41,7 +42,7 @@ class TaskFilterButton extends StatelessWidget {
     ].where((filter) => filter).length;
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
+      padding: const EdgeInsets.fromLTRB(20, 0, 20, 18),
       child: Row(
         children: [
           OutlinedButton.icon(
@@ -49,10 +50,10 @@ class TaskFilterButton extends StatelessWidget {
             icon: const Icon(Icons.filter_list),
             label: const Text('Filter'),
             style: OutlinedButton.styleFrom(
-              foregroundColor: Colors.black87,
-              side: const BorderSide(color: Colors.black87, width: 1.2),
+              foregroundColor: AppTheme.primary,
+              side: const BorderSide(color: AppTheme.outline),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(14),
               ),
             ),
           ),
@@ -60,7 +61,7 @@ class TaskFilterButton extends StatelessWidget {
             const SizedBox(width: 10),
             Text(
               '$filterCount active',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
+              style: TextStyle(color: AppTheme.mutedInk, fontSize: 14),
             ),
           ],
         ],
@@ -144,7 +145,11 @@ class _TaskFilterSheetContentState extends State<_TaskFilterSheetContent> {
         const Expanded(
           child: Text(
             'Filters',
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: AppTheme.ink,
+            ),
           ),
         ),
         IconButton(
@@ -161,14 +166,7 @@ class _TaskFilterSheetContentState extends State<_TaskFilterSheetContent> {
 
     return DropdownButtonFormField<String?>(
       initialValue: _subjectId,
-      decoration: InputDecoration(
-        labelText: 'Subject',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.black87, width: 1.5),
-        ),
-      ),
+      decoration: const InputDecoration(labelText: 'Subject'),
       items: [
         const DropdownMenuItem<String?>(
           value: null,
@@ -188,14 +186,7 @@ class _TaskFilterSheetContentState extends State<_TaskFilterSheetContent> {
   Widget _buildUrgencyFilter() {
     return DropdownButtonFormField<TaskUrgency?>(
       initialValue: _urgency,
-      decoration: InputDecoration(
-        labelText: 'Urgency',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.black87, width: 1.5),
-        ),
-      ),
+      decoration: const InputDecoration(labelText: 'Urgency'),
       items: const [
         DropdownMenuItem<TaskUrgency?>(
           value: null,
@@ -225,14 +216,7 @@ class _TaskFilterSheetContentState extends State<_TaskFilterSheetContent> {
   Widget _buildCompletionFilter() {
     return DropdownButtonFormField<bool?>(
       initialValue: _completionStatus,
-      decoration: InputDecoration(
-        labelText: 'Status',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: Colors.black87, width: 1.5),
-        ),
-      ),
+      decoration: const InputDecoration(labelText: 'Status'),
       items: const [
         DropdownMenuItem<bool?>(value: null, child: Text('All Tasks')),
         DropdownMenuItem<bool?>(value: false, child: Text('Incomplete')),

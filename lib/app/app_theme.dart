@@ -29,6 +29,7 @@ abstract final class AppTheme {
         thickness: 1,
         space: 1,
       ),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(color: primary),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: Colors.white,
         indicatorColor: scheme.secondaryContainer,
