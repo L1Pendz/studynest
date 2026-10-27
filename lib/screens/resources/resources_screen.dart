@@ -13,12 +13,18 @@ class ResourcesScreen extends StatefulWidget {
   final AppDatabase database;
   final List<Subject> subjects;
   final List<StudyMaterial> initialMaterials;
+  final String? requestedSubjectId;
+  final int subjectNavigationRequest;
+  final bool requestedVideoSearch;
 
   const ResourcesScreen({
     super.key,
     required this.database,
     required this.subjects,
     required this.initialMaterials,
+    this.requestedSubjectId,
+    this.subjectNavigationRequest = 0,
+    this.requestedVideoSearch = false,
   });
 
   @override
@@ -47,6 +53,23 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
     if (_selectedSubjectId != null &&
         !widget.subjects.any((subject) => subject.id == _selectedSubjectId)) {
       _selectedSubjectId = null;
+    }
+    if (oldWidget.subjectNavigationRequest != widget.subjectNavigationRequest) {
+      _showVideos = widget.requestedVideoSearch;
+      _selectedSubjectId = widget.requestedVideoSearch
+          ? null
+          : widget.requestedSubjectId;
+      if (widget.requestedVideoSearch) {
+        _videoQuery = '';
+        _videos = [];
+        _videoError = null;
+        _videoSearchController.text =
+            widget.subjects
+                .where((subject) => subject.id == widget.requestedSubjectId)
+                .map((subject) => subject.name)
+                .firstOrNull ??
+            '';
+      }
     }
   }
 

@@ -13,12 +13,16 @@ class TasksScreen extends StatefulWidget {
   final AppDatabase database;
   final List<Subject> initialSubjects;
   final List<Task> initialTasks;
+  final String? requestedSubjectId;
+  final int subjectNavigationRequest;
 
   const TasksScreen({
     super.key,
     required this.database,
     required this.initialSubjects,
     required this.initialTasks,
+    this.requestedSubjectId,
+    this.subjectNavigationRequest = 0,
   });
 
   @override
@@ -89,6 +93,9 @@ class _TasksScreenState extends State<TasksScreen> {
     }
     if (!identical(oldWidget.initialTasks, widget.initialTasks)) {
       _tasks = List.of(widget.initialTasks);
+    }
+    if (oldWidget.subjectNavigationRequest != widget.subjectNavigationRequest) {
+      _selectedSubjectId = widget.requestedSubjectId;
     }
   }
 

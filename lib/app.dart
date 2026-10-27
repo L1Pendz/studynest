@@ -233,6 +233,11 @@ class MainNavigationScreen extends StatefulWidget {
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
+  int _taskSubjectNavigationRequest = 0;
+  int _resourceSubjectNavigationRequest = 0;
+  String? _requestedTaskSubjectId;
+  String? _requestedResourceSubjectId;
+  bool _requestedVideoSearch = false;
   late List<Subject> _subjects;
   late List<Task> _tasks;
   late List<StudyMaterial> _materials;
@@ -262,6 +267,25 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     }
   }
 
+  void _openSubjectTasks(String subjectId) {
+    setState(() {
+      _requestedTaskSubjectId = subjectId;
+      _taskSubjectNavigationRequest++;
+      _selectedIndex = 2;
+    });
+    Navigator.of(context).pop();
+  }
+
+  void _openSubjectResources(String subjectId, {required bool findVideos}) {
+    setState(() {
+      _requestedResourceSubjectId = subjectId;
+      _requestedVideoSearch = findVideos;
+      _resourceSubjectNavigationRequest++;
+      _selectedIndex = 3;
+    });
+    Navigator.of(context).pop();
+  }
+
   @override
   Widget build(BuildContext context) {
     final screens = [
@@ -270,16 +294,34 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         database: widget.database,
         initialSubjects: _subjects,
         onSubjectsChanged: _reloadData,
+        pendingTaskCounts: {
+          for (final subject in _subjects)
+            subject.id: _tasks
+                .where(
+                  (task) => task.subjectId == subject.id && !task.isCompleted,
+                )
+                .length,
+        },
+        onViewTasks: _openSubjectTasks,
+        onViewResources: (subjectId) =>
+            _openSubjectResources(subjectId, findVideos: false),
+        onFindVideos: (subjectId) =>
+            _openSubjectResources(subjectId, findVideos: true),
       ),
       TasksScreen(
         database: widget.database,
         initialSubjects: _subjects,
         initialTasks: _tasks,
+        requestedSubjectId: _requestedTaskSubjectId,
+        subjectNavigationRequest: _taskSubjectNavigationRequest,
       ),
       ResourcesScreen(
         database: widget.database,
         subjects: _subjects,
         initialMaterials: _materials,
+        requestedSubjectId: _requestedResourceSubjectId,
+        subjectNavigationRequest: _resourceSubjectNavigationRequest,
+        requestedVideoSearch: _requestedVideoSearch,
       ),
     ];
 

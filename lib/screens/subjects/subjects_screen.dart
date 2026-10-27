@@ -10,12 +10,20 @@ class SubjectsScreen extends StatefulWidget {
   final AppDatabase database;
   final List<Subject> initialSubjects;
   final Future<void> Function() onSubjectsChanged;
+  final Map<String, int> pendingTaskCounts;
+  final ValueChanged<String> onViewTasks;
+  final ValueChanged<String> onViewResources;
+  final ValueChanged<String> onFindVideos;
 
   const SubjectsScreen({
     super.key,
     required this.database,
     required this.initialSubjects,
     required this.onSubjectsChanged,
+    required this.pendingTaskCounts,
+    required this.onViewTasks,
+    required this.onViewResources,
+    required this.onFindVideos,
   });
 
   @override
@@ -194,6 +202,10 @@ class _SubjectsScreenState extends State<SubjectsScreen> {
         builder: (_) => SubjectDetailsScreen(
           subject: subject,
           subjects: _subjects,
+          pendingTaskCount: widget.pendingTaskCounts[subject.id] ?? 0,
+          onViewTasks: () => widget.onViewTasks(subject.id),
+          onViewResources: () => widget.onViewResources(subject.id),
+          onFindVideos: () => widget.onFindVideos(subject.id),
           onDelete: () async {
             await widget.database.deleteSubject(subject.id);
             if (!mounted) return;
