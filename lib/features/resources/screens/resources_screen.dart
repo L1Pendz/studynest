@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:studynest/utils/subject_lookup.dart';
 import 'package:studynest/utils/subject_ordering.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -67,10 +68,7 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
         _videos = [];
         _videoError = null;
         _videoSearchController.text =
-            widget.subjects
-                .where((subject) => subject.id == widget.requestedSubjectId)
-                .map((subject) => subject.name)
-                .firstOrNull ??
+            findSubjectById(widget.subjects, widget.requestedSubjectId)?.name ??
             '';
       }
     }
@@ -431,10 +429,10 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
   }
 
   Widget _buildMaterialCard(StudyMaterial material) {
-    final subjectName = widget.subjects
-        .where((subject) => subject.id == material.subjectId)
-        .map((subject) => subject.name)
-        .firstOrNull;
+    final subjectName = findSubjectById(
+      widget.subjects,
+      material.subjectId,
+    )?.name;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -503,10 +501,10 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
   }
 
   Future<void> _showMaterialDetails(StudyMaterial material) async {
-    final subjectName = widget.subjects
-        .where((subject) => subject.id == material.subjectId)
-        .map((subject) => subject.name)
-        .firstOrNull;
+    final subjectName = findSubjectById(
+      widget.subjects,
+      material.subjectId,
+    )?.name;
 
     await Navigator.push<void>(
       context,

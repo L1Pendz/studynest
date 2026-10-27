@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:studynest/features/tasks/screens/task_form_screen.dart';
+import 'package:studynest/utils/subject_lookup.dart';
 
 import '../../../data/app_database.dart';
 import '../../../models/subject.dart';
@@ -249,13 +250,7 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   Subject? _getSubjectForTask(Task task) {
-    for (final subject in _subjects) {
-      if (subject.id == task.subjectId) {
-        return subject;
-      }
-    }
-
-    return null;
+    return findSubjectById(_subjects, task.subjectId);
   }
 
   Future<void> _showAddTask() async {
