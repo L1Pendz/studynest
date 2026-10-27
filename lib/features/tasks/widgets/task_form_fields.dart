@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:studynest/utils/subject_ordering.dart';
 
+import '../../../app/app_theme.dart';
 import '../../../models/subject.dart';
-
-const Color _borderColor = Color(0xFF1F1F1F);
 
 class TaskTitleField extends StatelessWidget {
   final TextEditingController controller;
@@ -17,30 +16,16 @@ class TaskTitleField extends StatelessWidget {
       children: [
         const Text(
           'Task Name',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.ink,
+          ),
         ),
         const SizedBox(height: 7),
         TextFormField(
           controller: controller,
-          decoration: InputDecoration(
-            hintText: 'Enter task name...',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _borderColor, width: 1.5),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _borderColor, width: 1.5),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.black87, width: 2),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
-            ),
-          ),
+          decoration: InputDecoration(hintText: 'Enter task name...'),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
               return 'Please enter a task name.';
@@ -75,7 +60,11 @@ class TaskSubjectDropdown extends StatelessWidget {
       children: [
         const Text(
           'Subject',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.ink,
+          ),
         ),
         const SizedBox(height: 7),
         DropdownButtonFormField<String>(
@@ -83,24 +72,6 @@ class TaskSubjectDropdown extends StatelessWidget {
           isExpanded: true,
           hint: const Text('Select subject...'),
           icon: const Icon(Icons.keyboard_arrow_down),
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _borderColor, width: 1.5),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _borderColor, width: 1.5),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.black87, width: 2),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 4,
-            ),
-          ),
           items: subjectsInPickerOrder.map((subject) {
             return DropdownMenuItem(
               value: subject.id,
@@ -133,7 +104,11 @@ class TaskDescriptionField extends StatelessWidget {
       children: [
         const Text(
           'Description',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.ink,
+          ),
         ),
         const SizedBox(height: 7),
         TextFormField(
@@ -142,19 +117,6 @@ class TaskDescriptionField extends StatelessWidget {
           decoration: InputDecoration(
             hintText: 'Enter task details...',
             alignLabelWithHint: true,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _borderColor, width: 1.5),
-            ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: _borderColor, width: 1.5),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: const BorderSide(color: Colors.black87, width: 2),
-            ),
-            contentPadding: const EdgeInsets.all(16),
           ),
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
@@ -186,18 +148,23 @@ class TaskDueDateField extends StatelessWidget {
       children: [
         const Text(
           'Deadline',
-          style: TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: AppTheme.ink,
+          ),
         ),
         const SizedBox(height: 7),
         InkWell(
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           onTap: onTap,
           child: Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              border: Border.all(color: _borderColor, width: 1.5),
-              borderRadius: BorderRadius.circular(12),
+              color: Colors.white,
+              border: Border.all(color: AppTheme.outline),
+              borderRadius: BorderRadius.circular(14),
             ),
             child: Row(
               children: [
@@ -207,9 +174,7 @@ class TaskDueDateField extends StatelessWidget {
                         ? 'Select date...'
                         : '${dueDate!.day}/${dueDate!.month}/${dueDate!.year}',
                     style: TextStyle(
-                      color: dueDate == null
-                          ? Colors.grey.shade600
-                          : Colors.black87,
+                      color: dueDate == null ? AppTheme.mutedInk : AppTheme.ink,
                     ),
                   ),
                 ),

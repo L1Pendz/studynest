@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../app/app_theme.dart';
 import '../../../models/subject.dart';
 import '../../../models/task.dart';
 import '../widgets/task_form_fields.dart';
@@ -30,8 +31,6 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   int _highThreshold = 3;
   int _criticalThreshold = 1;
 
-  static const Color _primaryColor = Color(0xFF8EC9F5);
-
   @override
   void initState() {
     super.initState();
@@ -60,33 +59,27 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppTheme.canvas,
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
         leading: IconButton(
           tooltip: 'Back',
           onPressed: () => Navigator.pop(context),
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: const Icon(Icons.arrow_back),
         ),
         title: Text(
           widget.isEditing ? 'Edit Task' : 'Add Task',
           style: const TextStyle(
-            color: Colors.black87,
+            color: AppTheme.ink,
             fontSize: 22,
             fontWeight: FontWeight.w500,
           ),
         ),
         centerTitle: true,
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, thickness: 1.5, color: Colors.black87),
-        ),
       ),
       body: Form(
         key: _formKey,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 22, 24, 30),
+          padding: const EdgeInsets.fromLTRB(20, 18, 20, 30),
           children: [
             TaskTitleField(controller: _titleController),
             const SizedBox(height: 18),
@@ -141,17 +134,16 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             child: ElevatedButton(
               onPressed: _saveTask,
               style: ElevatedButton.styleFrom(
-                backgroundColor: _primaryColor,
-                foregroundColor: Colors.black87,
+                backgroundColor: AppTheme.primary,
+                foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  side: const BorderSide(color: Colors.black87, width: 1.3),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
               child: Text(
                 widget.isEditing ? 'Save Changes' : 'Save Task',
-                style: const TextStyle(fontWeight: FontWeight.w500),
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ),
@@ -163,15 +155,15 @@ class _TaskFormScreenState extends State<TaskFormScreen> {
             child: OutlinedButton(
               onPressed: () => Navigator.pop(context),
               style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.black87,
-                side: const BorderSide(color: Colors.black87, width: 1.3),
+                foregroundColor: AppTheme.primary,
+                side: const BorderSide(color: AppTheme.outline),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(14),
                 ),
               ),
               child: const Text(
                 'Cancel',
-                style: TextStyle(fontWeight: FontWeight.w500),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
           ),
