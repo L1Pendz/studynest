@@ -649,6 +649,27 @@ class _ResourcesScreenState extends State<ResourcesScreen> {
         builder: (_) => ResourceDetailsScreen(
           material: material,
           subjectName: subjectName ?? 'Unknown subject',
+          subjects: widget.subjects,
+          database: widget.database,
+          onMaterialUpdated: (updated) {
+            if (!mounted) return;
+            setState(() {
+              final index = _materials.indexWhere(
+                (item) => item.id == updated.id,
+              );
+              if (index != -1) _materials[index] = updated;
+            });
+          },
+          onDelete: () async {
+            await widget.database.deleteMaterial(material.id);
+            if (material.type == StudyMaterialType.document) {
+              await deleteStoredMaterial(material.resourceLocation);
+            }
+            if (!mounted) return;
+            setState(() {
+              _materials.removeWhere((item) => item.id == material.id);
+            });
+          },
         ),
       ),
     );

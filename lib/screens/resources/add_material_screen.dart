@@ -7,8 +7,13 @@ import '../../models/subject.dart';
 
 class AddMaterialScreen extends StatefulWidget {
   final List<Subject> subjects;
+  final StudyMaterial? initialMaterial;
 
-  const AddMaterialScreen({super.key, required this.subjects});
+  const AddMaterialScreen({
+    super.key,
+    required this.subjects,
+    this.initialMaterial,
+  });
 
   @override
   State<AddMaterialScreen> createState() => _AddMaterialScreenState();
@@ -16,13 +21,24 @@ class AddMaterialScreen extends StatefulWidget {
 
 class _AddMaterialScreenState extends State<AddMaterialScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _titleController = TextEditingController();
-  final _descriptionController = TextEditingController();
-  final _linkController = TextEditingController();
+  late final _titleController = TextEditingController(
+    text: widget.initialMaterial?.title ?? '',
+  );
+  late final _descriptionController = TextEditingController(
+    text: widget.initialMaterial?.description ?? '',
+  );
+  late final _linkController = TextEditingController(
+    text: widget.initialMaterial?.type == StudyMaterialType.link
+        ? widget.initialMaterial!.resourceLocation
+        : '',
+  );
 
-  StudyMaterialType _type = StudyMaterialType.document;
-  String? _subjectId;
+  late StudyMaterialType _type =
+      widget.initialMaterial?.type ?? StudyMaterialType.document;
+  late String? _subjectId = widget.initialMaterial?.subjectId;
   PlatformFile? _pickedFile;
+
+  bool get _isEditing => widget.initialMaterial != null;
 
   static const Color _borderColor = Color(0xFF1F1F1F);
   static const Color _primaryColor = Color(0xFF8EC9F5);
@@ -52,8 +68,8 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
           onPressed: () => Navigator.pop(context),
           icon: const Icon(Icons.arrow_back, color: Colors.black87),
         ),
-        title: const Text(
-          'Add Material',
+        title: Text(
+          _isEditing ? 'Edit Resource' : 'Add Material',
           style: TextStyle(
             color: Colors.black87,
             fontSize: 22,
@@ -71,43 +87,7 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(24, 22, 24, 30),
           children: [
-            SegmentedButton<StudyMaterialType>(
-              style: ButtonStyle(
-                foregroundColor: const WidgetStatePropertyAll(Colors.black87),
-                backgroundColor: WidgetStateProperty.resolveWith((states) {
-                  return states.contains(WidgetState.selected)
-                      ? _primaryColor
-                      : Colors.white;
-                }),
-                side: const WidgetStatePropertyAll(
-                  BorderSide(color: _borderColor, width: 1.5),
-                ),
-                shape: WidgetStatePropertyAll(
-                  RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              segments: const [
-                ButtonSegment(
-                  value: StudyMaterialType.document,
-                  label: Text('Document'),
-                  icon: Icon(Icons.description_outlined),
-                ),
-                ButtonSegment(
-                  value: StudyMaterialType.link,
-                  label: Text('Resource link'),
-                  icon: Icon(Icons.link),
-                ),
-              ],
-              selected: {_type},
-              onSelectionChanged: (selection) {
-                setState(() {
-                  _type = selection.first;
-                  _pickedFile = null;
-                });
-              },
-            ),
+            _buildTypeControl(),
             const SizedBox(height: 20),
             if (_type == StudyMaterialType.document) ...[
               _buildFieldLabel('Document'),
@@ -131,10 +111,16 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          _pickedFile?.name ?? 'Select a document...',
+                          _pickedFile?.name ??
+                              widget.initialMaterial?.fileName ??
+                              'Select a document...',
                         ),
                       ),
-                      const Icon(Icons.keyboard_arrow_down),
+                      Icon(
+                        _isEditing
+                            ? Icons.edit_outlined
+                            : Icons.keyboard_arrow_down,
+                      ),
                     ],
                   ),
                 ),
@@ -219,6 +205,66 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
     );
   }
 
+  Widget _buildTypeControl() {
+    if (_isEditing) {
+      final isDocument = _type == StudyMaterialType.document;
+      return Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          border: Border.all(color: _borderColor, width: 1.5),
+          borderRadius: BorderRadius.circular(12),
+          color: const Color(0xFFF3F7FE),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isDocument ? Icons.description_outlined : Icons.link,
+              color: Colors.black87,
+            ),
+            const SizedBox(width: 10),
+            Text(isDocument ? 'Document' : 'Resource link'),
+          ],
+        ),
+      );
+    }
+
+    return SegmentedButton<StudyMaterialType>(
+      style: ButtonStyle(
+        foregroundColor: const WidgetStatePropertyAll(Colors.black87),
+        backgroundColor: WidgetStateProperty.resolveWith((states) {
+          return states.contains(WidgetState.selected)
+              ? _primaryColor
+              : Colors.white;
+        }),
+        side: const WidgetStatePropertyAll(
+          BorderSide(color: _borderColor, width: 1.5),
+        ),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        ),
+      ),
+      segments: const [
+        ButtonSegment(
+          value: StudyMaterialType.document,
+          label: Text('Document'),
+          icon: Icon(Icons.description_outlined),
+        ),
+        ButtonSegment(
+          value: StudyMaterialType.link,
+          label: Text('Resource link'),
+          icon: Icon(Icons.link),
+        ),
+      ],
+      selected: {_type},
+      onSelectionChanged: (selection) {
+        setState(() {
+          _type = selection.first;
+          _pickedFile = null;
+        });
+      },
+    );
+  }
+
   InputDecoration _fieldDecoration({
     String? hintText,
     bool alignLabelWithHint = false,
@@ -259,9 +305,9 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
                   side: const BorderSide(color: Colors.black87, width: 1.3),
                 ),
               ),
-              child: const Text(
-                'Save Material',
-                style: TextStyle(fontWeight: FontWeight.w500),
+              child: Text(
+                _isEditing ? 'Save Changes' : 'Save Material',
+                style: const TextStyle(fontWeight: FontWeight.w500),
               ),
             ),
           ),
@@ -301,30 +347,46 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
 
     setState(() {
       _pickedFile = file;
-      _titleController.text = _titleFromFileName(file.name);
+      if (!_isEditing) {
+        _titleController.text = _titleFromFileName(file.name);
+      }
     });
   }
 
   Future<void> _saveMaterial() async {
     if (!_formKey.currentState!.validate()) return;
 
-    if (_type == StudyMaterialType.document && _pickedFile == null) {
+    if (_type == StudyMaterialType.document &&
+        _pickedFile == null &&
+        widget.initialMaterial?.type != StudyMaterialType.document) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select a document.')),
       );
       return;
     }
 
-    final id = DateTime.now().microsecondsSinceEpoch.toString();
+    final id =
+        widget.initialMaterial?.id ??
+        DateTime.now().microsecondsSinceEpoch.toString();
+    String? newlyStoredPath;
 
     try {
-      final location = _type == StudyMaterialType.document
-          ? await storePickedMaterial(_pickedFile!, id)
-          : _linkController.text.trim();
+      final String location;
+      if (_type == StudyMaterialType.document && _pickedFile != null) {
+        final storageId = _isEditing
+            ? '$id-${DateTime.now().microsecondsSinceEpoch}'
+            : id;
+        location = await storePickedMaterial(_pickedFile!, storageId);
+        newlyStoredPath = location;
+      } else if (_type == StudyMaterialType.document) {
+        location = widget.initialMaterial!.resourceLocation;
+      } else {
+        location = _linkController.text.trim();
+      }
 
       if (!mounted) {
-        if (_type == StudyMaterialType.document) {
-          await deleteStoredMaterial(location);
+        if (newlyStoredPath != null) {
+          await deleteStoredMaterial(newlyStoredPath);
         }
         return;
       }
@@ -338,11 +400,16 @@ class _AddMaterialScreenState extends State<AddMaterialScreen> {
           description: _descriptionController.text.trim(),
           type: _type,
           resourceLocation: location,
-          fileName: _pickedFile?.name,
-          addedAt: DateTime.now(),
+          fileName: _type == StudyMaterialType.document
+              ? _pickedFile?.name ?? widget.initialMaterial?.fileName
+              : null,
+          addedAt: widget.initialMaterial?.addedAt ?? DateTime.now(),
         ),
       );
     } catch (_) {
+      if (newlyStoredPath != null) {
+        await deleteStoredMaterial(newlyStoredPath);
+      }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Could not save the selected material.')),
