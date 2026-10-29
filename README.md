@@ -56,9 +56,22 @@ flutter build apk --release --dart-define=YOUTUBE_SEARCH_WORKER_URL=https://your
 
 The APK is generated at build/app/outputs/flutter-apk/app-release.apk.
 
-### API key handling
+### YouTube API and Cloudflare Worker setup
 
-The Flutter app sends search requests to a Cloudflare Worker. The Worker stores the YouTube Data API key as a Cloudflare Secret and adds it when it calls YouTube, so the key is not included in the app. Set the Worker secret named `YOUTUBE_API_KEY` in the Cloudflare dashboard. The Worker must accept `GET /search?q=...` and return YouTube's JSON response. Configure CORS response headers on the Worker if using Flutter Web. The Worker URL is public, so monitor YouTube quota and add request limits before distributing the app widely.
+YouTube search requires a YouTube Data API v3 key and a deployed Cloudflare Worker. The key is stored by Cloudflare and never added to the Flutter app.
+
+1. In [Google Cloud Console](https://console.cloud.google.com/), create or select a project and enable **YouTube Data API v3** from **APIs & Services → Library**.
+2. Go to **APIs & Services → Credentials → Create credentials → API key**. Restrict the key to **YouTube Data API v3** under **API restrictions**, then save it. Do not commit the key or put it in a Flutter `--dart-define`.
+3. Create and deploy a Cloudflare Worker. It must accept `GET /search?q=...`, call YouTube's `search.list` endpoint with the key, and return the YouTube JSON response. For Flutter Web, configure the Worker to return CORS headers that allow your app's origin.
+4. In the Cloudflare dashboard, open the Worker and go to **Settings → Variables and Secrets**. Add a **Secret** named `YOUTUBE_API_KEY` with the key from Google Cloud, then save and deploy the Worker.
+5. Copy the Worker base URL (without `/search`) and pass it when running or building the app:
+
+~~~powershell
+flutter run --dart-define=YOUTUBE_SEARCH_WORKER_URL=https://your-worker.your-subdomain.workers.dev
+flutter build apk --release --dart-define=YOUTUBE_SEARCH_WORKER_URL=https://your-worker.your-subdomain.workers.dev
+~~~
+
+The app appends `/search` and sends the query to the Worker. Monitor YouTube quota and configure request limits for the Worker.
 
 ## Team
 
