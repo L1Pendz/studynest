@@ -31,7 +31,7 @@ StudyNest is a Flutter study planner that helps students organize subjects, assi
 
 - Flutter SDK compatible with pubspec.yaml (Dart 3.10.3 or newer).
 - Android Studio or another configured Android toolchain to build Android APKs.
-- A YouTube Data API v3 key to use YouTube search. The rest of the planner works without it.
+- A deployed Cloudflare Worker that proxies YouTube search. The rest of the planner works without it.
 
 ## Setup and run
 
@@ -42,23 +42,23 @@ flutter pub get
 flutter run
 ~~~
 
-To enable YouTube search, create a YouTube Data API v3 key in Google Cloud, restrict it to the YouTube Data API, and run:
+To enable YouTube search, deploy the Cloudflare Worker described in the API key handling section below, then provide its HTTPS URL:
 
 ~~~powershell
-flutter run --dart-define=YOUTUBE_API_KEY=your_api_key
+flutter run --dart-define=YOUTUBE_SEARCH_WORKER_URL=https://your-worker.your-subdomain.workers.dev
 ~~~
 
 Build a release APK with YouTube search enabled:
 
 ~~~powershell
-flutter build apk --release --dart-define=YOUTUBE_API_KEY=your_api_key
+flutter build apk --release --dart-define=YOUTUBE_SEARCH_WORKER_URL=https://your-worker.your-subdomain.workers.dev
 ~~~
 
 The APK is generated at build/app/outputs/flutter-apk/app-release.apk.
 
 ### API key handling
 
-Do not commit the key to source code or a public repository. Restrict the key to the YouTube Data API v3 and monitor its quota. The --dart-define value is included in the built app and can be extracted from an APK, so it is not a secret once distributed. For a public release where the key must remain private, route API requests through a backend that stores the key server-side.
+The Flutter app sends search requests to a Cloudflare Worker. The Worker stores the YouTube Data API key as a Cloudflare Secret and adds it when it calls YouTube, so the key is not included in the app. Set the Worker secret named `YOUTUBE_API_KEY` in the Cloudflare dashboard. The Worker must accept `GET /search?q=...` and return YouTube's JSON response. Configure CORS response headers on the Worker if using Flutter Web. The Worker URL is public, so monitor YouTube quota and add request limits before distributing the app widely.
 
 ## Team
 

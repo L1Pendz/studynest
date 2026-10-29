@@ -13,28 +13,36 @@ class YouTubeVideoSearchException implements Exception {
 }
 
 class YouTubeVideoSearchService {
-  static const _apiKey = String.fromEnvironment('YOUTUBE_API_KEY');
+  static const _workerUrl = String.fromEnvironment(
+    'YOUTUBE_SEARCH_WORKER_URL',
+  );
   final http.Client _client;
 
   YouTubeVideoSearchService({http.Client? client})
     : _client = client ?? http.Client();
 
-  bool get isConfigured => _apiKey.isNotEmpty;
+  bool get isConfigured => _workerUrl.isNotEmpty;
 
   Future<List<VideoSearchResult>> search(String query) async {
     if (!isConfigured) {
       throw const YouTubeVideoSearchException(
-        'YouTube search is not configured. Provide YOUTUBE_API_KEY at build time.',
+        'YouTube search is not configured. Provide YOUTUBE_SEARCH_WORKER_URL at build time.',
       );
     }
 
-    final uri = Uri.https('www.googleapis.com', '/youtube/v3/search', {
-      'part': 'snippet',
-      'type': 'video',
-      'maxResults': '15',
-      'q': '$query educational',
-      'key': _apiKey,
-    });
+    final workerUri = Uri.tryParse(_workerUrl);
+    if (workerUri == null ||
+        workerUri.scheme != 'https' ||
+        workerUri.host.isEmpty) {
+      throw const YouTubeVideoSearchException(
+        'YouTube search Worker URL is invalid. Provide its HTTPS URL.',
+      );
+    }
+
+    final uri = workerUri.replace(
+      path: '${workerUri.path.replaceFirst(RegExp(r'/$'), '')}/search',
+      queryParameters: {'q': query.trim()},
+    );
     try {
       final response = await _client
           .get(uri)
