@@ -13,6 +13,24 @@ StudyNest is a Flutter study planner that helps students organize subjects, assi
 - Reset all local data or reset subjects, tasks, or materials separately.
 - Recover from saved-data loading errors with retry and reset options.
 
+## Screenshots
+
+A look at StudyNest's planner and study resources.
+
+| Home dashboard | Subjects |
+| --- | --- |
+| ![Home dashboard with task and subject summaries](docs/screenshots/Picture1.png) | ![Subjects list](docs/screenshots/Picture2.png) |
+
+| Task list | Study resources |
+| --- | --- |
+| ![Tasks with priorities and due dates](docs/screenshots/Picture5.png) | ![Study resources and saved materials](docs/screenshots/Picture9.png) |
+
+| YouTube video search | Saved-data recovery |
+| --- | --- |
+| ![Search results for educational videos](docs/screenshots/Picture13.png) | ![Recovery options after saved tasks fail to load](docs/screenshots/Picture14.png) |
+
+More screenshots, including subject details and task and material forms, are available in [`docs/screenshots`](docs/screenshots/).
+
 ## Packages and technologies
 
 - **Flutter / Dart** — cross-platform application framework and language.
@@ -73,6 +91,23 @@ flutter build apk --release --dart-define=YOUTUBE_SEARCH_WORKER_URL=https://your
 
 The app appends `/search` and sends the query to the Worker. Monitor YouTube quota and configure request limits for the Worker.
 
+## Testing
+
+The test suite in `test/widget_test.dart` passes with `flutter test` and covers:
+
+- Navigation between Home, Subjects, Tasks, and Resources.
+- Database seeding, subject/task/material persistence and deletion, completion updates, and data resets.
+- Reassigning tasks and materials to No Subject when their subject is deleted.
+- Subject name validation, lookup, and picker ordering.
+- Resource-link form validation and submission, task editing, and saved-data recovery screen actions.
+- The YouTube search service's unconfigured state.
+
+Coverage is not exhaustive yet. Document picking and file storage, successful YouTube searches, and several full create/edit/delete screen flows still need tests. Run the suite with:
+
+~~~powershell
+flutter test
+~~~
+
 ## Team
 
 | Member | Role |
@@ -97,15 +132,13 @@ path = '...\study_materials' (OS Error: Access is denied, errno = 5)
 #2 _confirmAndReset
 ~~~
 
-The call stack located the failure in clearStoredMaterials(), called by the reset handler _confirmAndReset(). The screenshots above show the terminal output and the corresponding code change.
+The call stack located the failure in clearStoredMaterials(), called by the reset handler _confirmAndReset(). The screenshots below show the terminal output and the corresponding code change.
 
 ### Fix
 
 Cleanup now checks whether the directory exists, then deletes its files individually instead of recursively deleting the directory. The reset handler also catches and logs cleanup errors so a file-cleanup problem does not prevent the database reset from proceeding. The materials directory itself is left in place and can be reused.
 
 Implementation: lib/features/resources/data/material_file_storage_io.dart and lib/app.dart.
-
-## Screenshots
 
 The screenshots below document the saved-data reset debugging case.
 
